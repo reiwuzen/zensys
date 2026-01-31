@@ -1929,19 +1929,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "memory-core"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-opener",
- "tokio",
-]
-
-[[package]]
 name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5026,6 +5013,19 @@ dependencies = [
  "serde",
  "winnow 0.7.14",
  "zvariant",
+]
+
+[[package]]
+name = "zensys"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-opener",
+ "tokio",
 ]
 
 [[package]]
