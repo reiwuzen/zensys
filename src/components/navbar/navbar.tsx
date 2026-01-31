@@ -8,26 +8,35 @@ const Navbar = () => {
         <li 
         className={activeTab?.type === "overview" ? "active" : ""}
         onClick={() => switchActiveTab("overview")}>
-          <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" fill="#00A9B0"/>
-  
-  <rect x="128" y="128" width="256" height="256" rx="65" ry="65" fill="#FFFFFF"/>
-  
-  <g stroke="#00A9B0" stroke-width="14" fill="none" stroke-linecap="square" stroke-linejoin="miter">
-    <rect x="194" y="194" width="52" height="70" />
-    
-    <rect x="194" y="278" width="52" height="40" />
-    
-    <rect x="260" y="194" width="52" height="40" />
-    
-    <rect x="260" y="248" width="52" height="70" />
-  </g>
-</svg>
+          <div>
+
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            >
+            {/* <!-- Background --> */}
+            <rect x="4" y="4" width="56" height="56" rx="16" fill="#E6FDFF" />
+
+            {/* <!-- Top card --> */}
+            <rect x="14" y="14" width="36" height="14" rx="8" fill="#0FB9C6" />
+
+            {/* <!-- Bottom left card --> */}
+            <rect x="14" y="32" width="16" height="18" rx="8" fill="#7EE6ED" />
+
+            {/* <!-- Bottom right card --> */}
+            <rect x="34" y="32" width="16" height="18" rx="8" fill="#BFF6FA" />
+          </svg>
+            </div>
           <h6>Overview</h6>
         </li>
         <li 
         className={activeTab?.type === "memory_space" ? "active" : ""}
         onClick={() => switchActiveTab("memory_space")}>
+          <div>
+
           <svg
             width="64"
             height="64"
@@ -48,11 +57,14 @@ const Navbar = () => {
             {/* <!-- Connection dots --> */}
             <circle cx="32" cy="32" r="2" fill="#0FB9C6" />
           </svg>
+            </div>
           <h6>Memory Spaces</h6>
         </li>
         <li 
         className={activeTab?.type === "create" ? "active" : ""}
         onClick={() => switchActiveTab("create")}>
+        <div>
+
           <svg
             width="64"
             height="64"
@@ -69,11 +81,14 @@ const Navbar = () => {
             {/* <!-- Plus horizontal --> */}
             <rect x="18" y="30" width="28" height="4" rx="2" fill="#0FB9C6" />
           </svg>
+        </div>
           <h6>Create</h6>
         </li>
         <li
         className={activeTab?.type === "structure" ? "active" : ""}
          onClick={() => switchActiveTab("structure")}>
+          <div>
+
           <svg
             width="64"
             height="64"
@@ -94,11 +109,14 @@ const Navbar = () => {
             <rect x="18" y="36" width="12" height="12" rx="6" fill="#7EE6ED" />
             <rect x="34" y="36" width="12" height="12" rx="6" fill="#BFF6FA" />
           </svg>
+            </div>
           <h6>Structure</h6>
         </li>
         <li 
         className={activeTab?.type === "settings" ? "active" : ""}
          onClick={() => switchActiveTab("settings")}>
+         <div>
+
           <svg
             width="64"
             height="64"
@@ -130,7 +148,7 @@ const Navbar = () => {
               rx="2"
               transform="rotate(45 32 32)"
               fill="#0FB9C6"
-            />
+              />
             <rect
               x="30"
               y="46"
@@ -139,8 +157,9 @@ const Navbar = () => {
               rx="2"
               transform="rotate(45 32 32)"
               fill="#0FB9C6"
-            />
+              />
           </svg>
+              </div>
           <h6>Settings</h6>
         </li>
       </ul>

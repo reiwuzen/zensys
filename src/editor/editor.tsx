@@ -2,15 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import "./editor.scss";
 import BlockMenu from "./blockMenu";
 import { focusEnd } from "@/helper/focusEl";
+import { BlockType } from "./blockTypeMenu";
 
-type BlockType =
-  | "text"
-  | "heading1"
-  | "heading2"
-  | "bullet-list"
-  | "divider"
-  | "number-list"
-  | "quote";
+// export type BlockType =
+//   | "text"
+//   | "heading1"
+//   | "heading2"
+//   | "bullet-list"
+//   | "divider"
+//   | "number-list"
+//   | "quote";
 
 type Block = {
   id: string;
@@ -23,7 +24,7 @@ const Editor = () => {
     { id: crypto.randomUUID(), content: "", type: "text" },
   ]);
 
-  const [openMenu, setOpenMenu] = useState<null | "add" | "more">(null);
+  const [openMenu, setOpenMenu] = useState<null | "add" | "more" | "drag">(null);
 
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const blockMenuRef = useRef<HTMLDivElement>(null);
@@ -140,6 +141,7 @@ const Editor = () => {
                   e.preventDefault();
                   e.stopPropagation();
                   setOpenMenu((prev) => (prev === "more" ? null : "more"));
+                  console.log("drag")
                 }}
               >
                 ⋮⋮
@@ -173,8 +175,10 @@ const Editor = () => {
               
             </div>
 
-            {openMenu === "add" && index === blocks.length - 1 && (
+            {(openMenu === "add" || openMenu === "more") && index === blocks.length - 1 && (
               <BlockMenu
+              blockType={block.type}
+              type={openMenu}
                 blockMenuRef={blockMenuRef as React.RefObject<HTMLDivElement>}
                 onClose={() => setOpenMenu(null)}
                 onClick_text={() => {

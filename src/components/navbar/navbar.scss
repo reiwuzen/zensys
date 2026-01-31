@@ -1,5 +1,5 @@
 nav#navbar {
-  width: 10%;
+  width: 15%;
   height: calc(100% - 32px);
   padding: 16px 0;
 
@@ -23,8 +23,8 @@ nav#navbar {
 
     li {
       list-style: none;
-      height: 90px;
-      width: 90px;
+      height: 80px;
+      width: 80px;
       padding: 12px 12px;
 
       display: flex;
@@ -42,11 +42,16 @@ nav#navbar {
         transform 0.15s ease,
         box-shadow 0.25s ease;
 
-      svg {
-        width: 40px;
-        height: 40px;
-        transition: transform 0.25s ease;
-      }
+        div{
+
+          width: 60px;
+          height: 60px;
+          svg {
+            width: 100%;
+            height: 100%; 
+            transition: transform 0.25s ease;
+          }
+        }
 
       h6 {
         text-align: center;
@@ -56,6 +61,7 @@ nav#navbar {
         letter-spacing: 0.05em;
         text-transform: uppercase;
         color: #000000;
+          white-space: nowrap;
         opacity: 0.85;
         user-select: none;
       }

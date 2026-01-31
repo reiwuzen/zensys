@@ -1,5 +1,5 @@
 .blockMenu {
-  width: 320px;
+  width: 280px;
   max-height: 420px;
   padding: 8px;
 position: absolute;
@@ -12,10 +12,10 @@ position: absolute;
 
     top: 0;
   left: 32px; // aligns right of + button
-  overflow-y: auto;
   font-size: 14px;
-
+  
   .menu {
+    overflow-y: auto;
     /* ---------- SECTION ---------- */
 
     .menu-section {
@@ -118,3 +118,67 @@ position: absolute;
     }
   }
 }
+
+
+.blockMenu.more {
+  padding: 12px;
+  /* ---------- HEADER ---------- */
+  .more-header {
+    padding: 8px 10px 12px;
+    border-bottom: 1px solid #3a3a3a;
+  
+    .more-title {
+      font-size: 12px;
+      color: #9b9b9b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  
+    .more-subtitle {
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+  }
+  
+  /* ---------- TABS ---------- */
+  .more-tabs {
+    display: flex;
+    // height: 200px;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+  
+    button {
+      // flex: 1;
+      height: 50px;
+      border-radius: 6px;
+      background: transparent;
+      color: #bdbdbd;
+      border: 1px solid #3a3a3a;
+      cursor: pointer;
+      font-size: 13px;
+  
+      transition: all 0.15s ease;
+  
+      &:hover {
+        background: #3a3a3a;
+      }
+  
+      &.active {
+        background: #4a4a4a;
+        color: #ffffff;
+        border-color: #5a5a5a;
+      }
+    }
+  }
+  
+  /* ---------- PANEL ---------- */
+  .more-panel {
+    margin-top: 8px;
+    padding: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+}
+
