@@ -1,5 +1,6 @@
 import { useTabStore } from '@/store/useTabStore';
 import './workspace.scss'
+import Editor from '@/editor/editor';
 import { TAB_COMPONENTS } from '@/types/tab';
 const Workspace =()=> {
      const {activeTabId,tabs} = useTabStore();
@@ -7,7 +8,8 @@ const Workspace =()=> {
     const ActiveTabComponent = activeTab ? TAB_COMPONENTS[activeTab.type] : null;
     return (
         <div className="workspace">    
-            {ActiveTabComponent && <ActiveTabComponent />}
+            {/* {ActiveTabComponent && <ActiveTabComponent />} */}
+            <Editor />
         </div>
     )
 }

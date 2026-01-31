@@ -1,0 +1,120 @@
+.blockMenu {
+  width: 320px;
+  max-height: 420px;
+  padding: 8px;
+position: absolute;
+  background: #2f2f2f;
+  color: #e6e6e6;
+
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+
+    top: 0;
+  left: 32px; // aligns right of + button
+  overflow-y: auto;
+  font-size: 14px;
+
+  .menu {
+    /* ---------- SECTION ---------- */
+
+    .menu-section {
+      padding: 6px 10px;
+      margin-top: 6px;
+
+      font-size: 12px;
+      font-weight: 500;
+      color: #9b9b9b;
+
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ---------- ITEM ---------- */
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      height: 44px;
+      padding: 0 10px;
+
+      border-radius: 8px;
+      cursor: pointer;
+
+      transition: background 0.12s ease;
+
+      &:hover {
+        background: #3a3a3a;
+      }
+      /* ---------- LEFT ICON ---------- */
+
+      .menu-item-identifier {
+        width: 28px;
+        height: 28px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-weight: 600;
+        color: #cfcfcf;
+      }
+
+      /* ---------- LABEL ---------- */
+
+      .menu-item-label {
+        flex: 1;
+      }
+
+      /* ---------- RIGHT HINT ---------- */
+
+      .menu-item-hint {
+        font-size: 12px;
+        color: #8a8a8a;
+      }
+    }
+  }
+  .close-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    height: 44px;
+    padding: 0 10px;
+
+    border-radius: 8px;
+    cursor: pointer;
+
+    transition: background 0.12s ease;
+
+    &:hover {
+      background: #3a3a3a;
+    }
+    .menu-item-identifier {
+      width: 28px;
+      height: 28px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-weight: 600;
+      color: #cfcfcf;
+    }
+
+    /* ---------- LABEL ---------- */
+
+    .menu-item-label {
+      flex: 1;
+    }
+
+    /* ---------- RIGHT HINT ---------- */
+
+    .menu-item-hint {
+      font-size: 12px;
+      color: #8a8a8a;
+    }
+  }
+}

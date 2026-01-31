@@ -1,5 +1,7 @@
-import { MemoryNode, selectedMemoryType } from '@/memory/schema'
+import { selectedMemoryType } from '@/memory/schema'
+// import Editor from '@/components/editor/editor'
 import './memory_space_item.scss'
+import { useState } from 'react'
 
 type MemorySpaceItemProps = {
     memory: selectedMemoryType
@@ -7,7 +9,7 @@ type MemorySpaceItemProps = {
 
 const MemorySpaceItem = ({ memory }: MemorySpaceItemProps) => {
 
-
+const [editable, setEditable] = useState(false);
   const { active_node: activeNode,  } = memory;
   return (
     <article className="memory-node">
@@ -22,7 +24,9 @@ const MemorySpaceItem = ({ memory }: MemorySpaceItemProps) => {
         </time>
       </header>
 
-      <section className="memory-node__content">
+      <section className="memory-node__content" 
+      onClick={()=>setEditable(true)}>
+        {/* <Editor content={activeNode.content} editable={editable}></Editor> */}
         {activeNode.content}
       </section>
 

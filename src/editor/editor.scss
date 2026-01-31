@@ -1,0 +1,75 @@
+.editor {
+  overflow: auto;
+  height: calc(100% - 2rem);
+  width: calc(100% - 12rem);
+  padding: 1rem 6rem;
+  .editable-content {
+    border-left: 1px solid #000;
+    min-height: 100%;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    // column-gap: 4px;
+    row-gap: 4px;
+    .editor-block-row{
+          position: relative;
+        width: 100%;
+        display: flex;
+        align-items: end;
+        gap: 6px;
+        &:hover{
+            .editor-block-controls{
+                opacity: 1;
+            }
+        }
+        .editor-block-controls{
+            opacity: 0;
+            display: flex;
+            gap: 2px;
+            // align-items: center;
+            justify-content: center;
+            button{
+                cursor: pointer;
+                border: none;
+                background: none;
+                width: 24px;
+                height: 24px;
+            }
+        }
+        .editor-block-content{
+            height: 30px;
+            width: 100%;
+            outline: none;
+        }
+        .editor-block-content[data-type="heading1"] {
+            height: 60px;
+  font-size: 50px;
+  font-weight: 900;
+}
+
+.editor-block-content[data-type="heading2"] {
+    height: 40px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.editor-block-content[data-type="quote"] {
+  border-left: 3px solid #aaa;
+  padding-left: 12px;
+  color: #666;
+}
+
+.editor-block-content[data-type="bullet"] {
+  padding-left: 20px;
+  position: relative;
+
+  &::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+  }
+}
+    }
+  }
+}
+
