@@ -1,126 +1,42 @@
-import { useEffect, useRef, useState } from "react";
 import "./editor.scss";
+import { useEffect, useRef } from "react";
 import BlockMenu from "./blockMenu";
+import { useEditorZen } from "./useEditorZen";
 import { focusEnd } from "@/helper/focusEl";
-import { BlockType } from "./blockTypeMenu";
-
-// export type BlockType =
-//   | "text"
-//   | "heading1"
-//   | "heading2"
-//   | "bullet-list"
-//   | "divider"
-//   | "number-list"
-//   | "quote";
-
-type Block = {
-  id: string;
-  content: string;
-  type: BlockType;
-};
 
 const Editor = () => {
-  const [blocks, setBlocks] = useState<Block[]>([
-    { id: crypto.randomUUID(), content: "", type: "text" },
-  ]);
+  const pendingFocusId = useRef<string | null>(null);
+  const {
+    blocks,
+    openMenu,
+    setOpenMenu,
+    insertBlockAfter,
+    changeBlockType,
+    deleteBlock,
+    updateBlockContent,
+  } = useEditorZen();
 
-  const [openMenu, setOpenMenu] = useState<null | "add" | "more" | "drag">(null);
+  useEffect(() => {
+  if (!pendingFocusId.current) return;
 
+  const el = blockRefs.current.get(pendingFocusId.current);
+  if (el) {
+    focusEnd(el);
+  }
+
+  pendingFocusId.current = null;
+}, [blocks]);
+
+  /* ---------- DOM refs (local, NOT in store) ---------- */
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const blockMenuRef = useRef<HTMLDivElement>(null);
-
-  /* -----------------------------
-     Click outside → close menu
-  -------------------------------- */
-  useEffect(() => {
-    const handleMouseDown = (e: MouseEvent) => {
-      if (
-        blockMenuRef.current &&
-        !blockMenuRef.current.contains(e.target as Node)
-      ) {
-        setOpenMenu(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleMouseDown);
-    return () => document.removeEventListener("mousedown", handleMouseDown);
-  }, []);
-
-  /* -----------------------------
-     Single source of truth:
-     insert block after index
-  -------------------------------- */
-  const deleteBlock = (index: number) => {
-      if (blocks.length === 1) return;
-    const id = index > 0 ? blocks[index - 1].id : null;
-    setBlocks((prev) => {
-      const next = [...prev];
-      next.splice(index, 1);
-      return next;
-    });
-    requestAnimationFrame(() => {
-      if (id) {
-        const el = blockRefs.current.get(id);
-        if (el) {
-            focusEnd(el)
-        }
-    }});
-  };
-  const insertBlockAfter = (index: number, type: BlockType) => {
-    const newBlock: Block = {
-      id: crypto.randomUUID(),
-      content: "",
-      type,
-    };
-
-    setBlocks((prev) => {
-      const next = [...prev];
-      next.splice(index + 1, 0, newBlock);
-      return next;
-    });
-
-    requestAnimationFrame(() => {
-      blockRefs.current.get(newBlock.id)?.focus();
-    });
-  };
-
-  const changeBlockType = (index: number, type: Block["type"]) => {
-    setBlocks((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], type };
-      return next;
-    });
-  };
-
-  const backSpaceHandler = (
-    e: React.KeyboardEvent<HTMLDivElement>,
-    index: number,
-    text: string,
-  ) => {
-    if (text === "" && e.key === "Backspace") {
-      e.preventDefault();
-      deleteBlock(index);
-    }
-  };
-  /* -----------------------------
-     Enter key handler
-  -------------------------------- */
-  const handleEnter = (
-    e: React.KeyboardEvent<HTMLDivElement>,
-    index: number,
-    type: BlockType = "text",
-  ) => {
-    if (e.key !== "Enter") return;
-
-    e.preventDefault();
-    insertBlockAfter(index, type);
-  };
 
   return (
     <div className="editor">
       <div className="editable-content">
-        {blocks.map((block, index) => (
+        {blocks.map((block) => (
           <div className="editor-block-row" key={block.id}>
+            {/* ---------- CONTROLS ---------- */}
             <div
               className={`editor-block-controls ${openMenu ? "active" : ""}`}
             >
@@ -129,7 +45,7 @@ const Editor = () => {
                 onMouseDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setOpenMenu((prev) => (prev === "add" ? null : "add"));
+                  setOpenMenu(openMenu === "add" ? null : "add");
                 }}
               >
                 +
@@ -140,14 +56,14 @@ const Editor = () => {
                 onMouseDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setOpenMenu((prev) => (prev === "more" ? null : "more"));
-                  console.log("drag")
+                  setOpenMenu(openMenu === "more" ? null : "more");
                 }}
               >
                 ⋮⋮
               </button>
             </div>
 
+            {/* ---------- CONTENT ---------- */}
             <div
               className="editor-block-content"
               contentEditable
@@ -157,44 +73,61 @@ const Editor = () => {
                 if (el) blockRefs.current.set(block.id, el);
               }}
               onKeyDown={(e) => {
-                backSpaceHandler(e, index, block.content);
-                block.type === "bullet-list" &&
-                  handleEnter(e, index, "bullet-list");
-                block.type !== "bullet-list" && handleEnter(e, index);
-              }}
-              onInput={(e) => {
-                const text = e.currentTarget.textContent ?? "";
+                /* Backspace → delete empty block */
+                if (
+                  e.key === "Backspace" &&
+                  block.content === "" &&
+                  blocks.length > 1
+                ) {
+                  e.preventDefault();
+                  pendingFocusId.current = deleteBlock(block.id);
 
-                setBlocks((prev) => {
-                  const next = [...prev];
-                  next[index] = { ...next[index], content: text };
-                  return next;
-                });
-              }}
-            >
-              
-            </div>
+                  return;
+                }
 
-            {(openMenu === "add" || openMenu === "more") && index === blocks.length - 1 && (
+                /* Enter → insert block */
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                 pendingFocusId.current =  insertBlockAfter(block.id, block.type);
+                 
+                }
+              }}
+              onInput={(e) =>
+                updateBlockContent(block.id, e.currentTarget.textContent ?? "")
+              }
+            />
+
+            {/* ---------- MENU ---------- */}
+            {openMenu && (
               <BlockMenu
-              blockType={block.type}
-              type={openMenu}
+                block={block}
+                type={openMenu}
                 blockMenuRef={blockMenuRef as React.RefObject<HTMLDivElement>}
                 onClose={() => setOpenMenu(null)}
                 onClick_text={() => {
-                  insertBlockAfter(index, "text");
+                 pendingFocusId.current =  insertBlockAfter(block.id, "text");
+                  
                   setOpenMenu(null);
                 }}
                 onClick_heading1={() => {
-                  insertBlockAfter(index, "heading1");
+                  block.content === ""
+                    ? pendingFocusId.current =  changeBlockType(block.id, "heading1")
+                    : pendingFocusId.current =  insertBlockAfter(block.id, "heading1");
+                  
                   setOpenMenu(null);
                 }}
                 onClick_heading2={() => {
-                  insertBlockAfter(index, "heading2");
+                  block.content === ""
+                    ? pendingFocusId.current =  changeBlockType(block.id, "heading2")
+                    : pendingFocusId.current =  insertBlockAfter(block.id, "heading2");
+                  
                   setOpenMenu(null);
                 }}
                 onClick_bulletlist={() => {
-                  insertBlockAfter(index, "bullet-list");
+                  block.content === ""
+                    ? pendingFocusId.current =  changeBlockType(block.id, "bullet-list")
+                    : pendingFocusId.current =  insertBlockAfter(block.id, "bullet-list");
+                  
                   setOpenMenu(null);
                 }}
               />

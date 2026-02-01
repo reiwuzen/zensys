@@ -1,12 +1,11 @@
 import { useState } from "react";
 import "./blockMenu.scss";
-// import { BlockType } from "./editor";
-import { BlockType } from "./blockTypeMenu";
 import BlockTypeMenu from "./blockTypeMenu";
 import TextColorMenu from "./textColorMenu";
+import { Block } from "./useEditorZen";
 
 type BlockMenuProps = {
-  blockType: BlockType;
+  block: Block; 
   type: "add" | "more" | "drag";
   onClose: () => void;
   blockMenuRef: React.RefObject<HTMLDivElement>;
@@ -17,7 +16,7 @@ type BlockMenuProps = {
 };
 
 const BlockMenu = ({
-  blockType,
+  block,
   type,
   onClose,
   blockMenuRef,
@@ -93,7 +92,7 @@ const BlockMenu = ({
       {/* Header */}
       <div className="more-header">
         <div className="more-title">Block</div>
-        <div className="more-subtitle">{blockType}</div>
+        <div className="more-subtitle">{block.type}</div>
       </div>
 
       {/* Tabs */}
@@ -122,7 +121,7 @@ const BlockMenu = ({
       <div className="more-panel">
         {blockTypeMenuToggle && (
           <BlockTypeMenu
-            active={blockType}
+            selectedBlock={block}
             onSelect={(type) => {
               // TODO: wire changeBlockType
             }}
