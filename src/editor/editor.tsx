@@ -5,6 +5,7 @@ import { useEditorZen } from "./useEditorZen";
 import { focusEnd } from "@/helper/focusEl";
 import { MemoryNodeService } from "@/service/memoryNodeService";
 import { MemoryItemService } from "@/service/memoryItemService";
+import { useActiveTab } from "@/hooks/useActiveTab";
 
 const Editor = () => {
   const pendingFocusId = useRef<string | null>(null);
@@ -20,6 +21,7 @@ const Editor = () => {
     onClickBlockMenuItem,
     onSave,
   } = useEditorZen();
+  const { switchActiveTab } = useActiveTab();
   const { createMemoryNode } = MemoryNodeService();
   const {setActiveNodeIdOfMemoryItem} =MemoryItemService();
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -55,7 +57,9 @@ const Editor = () => {
     <div className="editor">
       <button
         className="editor-save-btn"
-        onClick={async () => {
+        onClick={async (e) => {
+          e.stopPropagation();
+          e.preventDefault()
           if (memory === null) return
           const { blocks: Blocks, content } = onSave(blocks);
           
@@ -71,6 +75,7 @@ const Editor = () => {
                 memory.selectedMN.node_id,
               ) 
               setActiveNodeIdOfMemoryItem(memory.mI.memory_id, newMemoryNode.node_id)
+              switchActiveTab('memory_space')
             }
           
         }}

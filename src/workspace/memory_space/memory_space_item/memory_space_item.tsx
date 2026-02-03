@@ -15,13 +15,17 @@ const { setMemory} = useEditorZen();
   const { active_node: activeNode,  } = memory;
   return (
     <article className="memory-node"
-    onClick={()=>{
+   
+    >
+      <button className='memory-node-edit-btn'
+      onClick={(e)=>{
+        e.stopPropagation();
+        e.preventDefault();
       {memory && setMemory({mI: memory.memory_item, selectedMN: memory.active_node})}
       switchActiveTab('editor')
 
     }}
-    >
-      <button className='memory-node-edit-btn'>Edit</button>
+      >Edit</button>
       <header className="memory-node__header">
         <h1 className="memory-node__title">
           {activeNode.title}

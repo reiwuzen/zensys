@@ -58,7 +58,7 @@ pub fn save_memory_node(app:AppHandle, memory_node:MemoryNode)-> Result<(),Strin
     let content_json = serde_json::to_string_pretty(&memory_node.content_json).map_err(|e| format!("Cannot serialize memory node content"))?;
 
     let tmp_content_md_path = nodes_dir.join("content.md.tmp");
-    let final_content_md_path = nodes_dir.join("content.mc");
+    let final_content_md_path = nodes_dir.join("content.md");
 
     let tmp_content_json_path = nodes_dir.join("content.json.tmp");
     let final_content_json_path = nodes_dir.join("content.json");
