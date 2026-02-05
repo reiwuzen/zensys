@@ -77,8 +77,6 @@ pub fn save_memory_node(app: AppHandle, memory_node: MemoryNode) -> Result<(), S
     std::fs::rename(&tmp_content_json_path, &final_content_json_path)
         .map_err(|e| format!("Cannot finalize node content_json: {}", e))?;
 
-    std::fs::write(&tmp_content_md_path, memory_node.content_string)
-        .map_err(|e| format!("Cannot write temp content_md: {}", e))?;
     std::fs::rename(&tmp_content_md_path, &final_content_md_path)
         .map_err(|e| format!("Cannot finalize node content_md: {}", e))?;
 
@@ -261,12 +259,11 @@ pub fn set_active_node_id_of_memory_item(
     Ok(())
 }
 
-
 /// Creates a new memory item and its initial node on disk.
 ///
 /// # Overview
 ///
-/// `create_memory_item` is a **strict, non-idempotent constructor** for a
+/// `create_memory_item_with_initial_node` is a **strict, non-idempotent constructor** for a
 /// `MemoryItem`. It persists the memory item and its first `MemoryNode`
 /// atomically using a staging directory and a final commit step.
 ///
@@ -285,7 +282,7 @@ pub fn set_active_node_id_of_memory_item(
 /// │     ├─ metadata.json
 /// │     └─ nodes/
 /// │        └─ {node_id}/
-/// │           ├─ metajson.json
+/// │           ├─ metadata.json
 /// │           ├─ content.json
 /// │           └─ content.md
 /// ```
@@ -352,7 +349,7 @@ pub fn set_active_node_id_of_memory_item(
 ///
 /// This function does not panic. All errors are returned as `Err(String)`.
 #[command]
-pub fn create_memory_item(
+pub fn create_memory_item_with_initial_node(
     app: AppHandle,
     memory_item: MemoryItem,
     memory_node: MemoryNode,
@@ -390,8 +387,6 @@ pub fn create_memory_item(
                 e
             )
         })?;
-    let node_content_md_path = node_path.join("content.md");
-    let node_content_md = memory_node.content_string.clone();
     {
         use std::fs;
 
@@ -415,8 +410,7 @@ pub fn create_memory_item(
                 node_json_path, e
             )
         })?;
-        fs::write(&node_content_md_path, &node_content_md)
-            .map_err(|e| format!("Failed to write to {:#?}/content.md: {}", node_json_path, e))?;
+       
 
         if memory_item_path.exists() {
             return Err(format!(
@@ -431,6 +425,190 @@ pub fn create_memory_item(
             )
         })?;
     }
+
+    Ok(())
+}
+
+
+
+/// Adds a new node to an existing memory item.
+///
+/// # Overview
+///
+/// `add_new_node_to_existing_memory_item` is a **strict, non-idempotent**
+/// operation that appends a new `MemoryNode` to an already existing
+/// `MemoryItem`.
+///
+/// The function assumes that the memory item identified by
+/// `memory_item.memory_id` already exists on disk and that node identities
+/// (`node_id`) are unique within that memory item.
+///
+/// Node creation is performed using a **staged write + atomic commit**
+/// pattern to ensure that partially written nodes are never visible.
+///
+/// # Persistence Model
+///
+/// Nodes are stored under the memory item's `nodes/` directory:
+///
+/// ```text
+/// memory_spaces/{memory_id}/
+/// └─ nodes/
+///    ├─ {existing_node_id}/
+///    └─ {node_id}/
+///       ├─ metadata.json
+///       ├─ content.json
+///       └─ content.md
+/// ```
+///
+/// During creation, node data is first written to:
+///
+/// ```text
+/// memory_spaces/{memory_id}/nodes/.staging/{node_id}/
+/// ```
+///
+/// After all files are written successfully, the staging directory is
+/// atomically renamed to its final location.
+///
+/// # Staging Semantics
+///
+/// - Staging is **local to this operation** and scoped to the node being added.
+/// - If the final node directory already exists, the operation fails and
+///   no overwrite occurs.
+/// - The staging directory is not committed unless all writes succeed.
+///
+/// This guarantees that callers will never observe a partially created node.
+///
+/// # Identity & Idempotency
+///
+/// - `memory_node.node_id` is treated as a **strong identity**.
+/// - This function is **not idempotent**.
+/// - Attempting to add a node with an existing `node_id` results in an error.
+///
+/// Updating or replacing a node must be handled by a separate, explicit API.
+///
+/// # Failure Guarantees
+///
+/// - If serialization fails, no filesystem changes are committed.
+/// - If any file write fails, the final node directory is not created.
+/// - If the function returns `Err`, existing nodes remain unchanged.
+/// - Partial data may remain only inside `.staging/{node_id}`.
+///
+/// # Parameters
+///
+/// - `app`: Application handle used to resolve the memory spaces directory.
+/// - `memory_item`: The parent memory item to which the node will be added.
+/// - `memory_node`: The node to be created and persisted.
+///
+/// # Returns
+///
+/// - `Ok(())` if the node was successfully written and committed.
+/// - `Err(String)` if any invariant check, serialization, or filesystem
+///   operation fails.
+///
+/// # Preconditions
+///
+/// - The memory item identified by `memory_item.memory_id` must already exist.
+/// - The caller must guarantee that `node_id` is unique within the memory item.
+///
+/// # Notes
+///
+/// - This function does not validate the existence or integrity of the parent
+///   memory item beyond filesystem layout expectations.
+/// - Cleanup of stale `.staging` directories is considered hygiene and may be
+///   handled elsewhere.
+///
+/// # Panics
+///
+/// This function does not panic. All errors are returned as `Err(String)`.
+#[command]
+pub fn add_new_node_to_existing_memory_item(
+    app: AppHandle,
+    memory_item: MemoryItem,
+    memory_node: MemoryNode,
+) -> Result<(), String> {
+    use std::fs;
+
+    let memory_spaces_dir = create_memory_spaces_dir(app)?;
+    let memory_dir = memory_spaces_dir.join(&memory_item.memory_id);
+
+    if !memory_dir.exists() {
+        return Err(format!(
+            "Memory item '{}' does not exist",
+            memory_item.memory_id
+        ));
+    }
+
+    let nodes_dir = memory_dir.join("nodes");
+    fs::create_dir_all(&nodes_dir)
+        .map_err(|e| format!("Failed to ensure nodes dir {:#?}: {}", nodes_dir, e))?;
+
+    let node_dir = nodes_dir.join(&memory_node.node_id);
+    if node_dir.exists() {
+        return Err(format!(
+            "Memory node '{}' already exists",
+            memory_node.node_id
+        ));
+    }
+
+    let staging_node_dir = nodes_dir.join(".staging").join(&memory_node.node_id);
+
+    // Always start from a clean staging dir
+    if staging_node_dir.exists() {
+        fs::remove_dir_all(&staging_node_dir)
+            .map_err(|e| format!("Failed to clean staging node dir: {}", e))?;
+    }
+
+    // --- Stage node ---
+    let stage_result = (|| {
+        fs::create_dir_all(&staging_node_dir)
+            .map_err(|e| format!("Failed to create staging node dir: {}", e))?;
+
+        fs::write(
+            staging_node_dir.join("metadata.json"),
+            serde_json::to_string_pretty(&memory_node)
+                .map_err(|e| format!("Serialize node metadata failed: {}", e))?,
+        )
+        .map_err(|e| format!("Write node metadata failed: {}", e))?;
+
+        fs::write(
+            staging_node_dir.join("content.json"),
+            serde_json::to_string_pretty(&memory_node.content_json)
+                .map_err(|e| format!("Serialize node content.json failed: {}", e))?,
+        )
+        .map_err(|e| format!("Write node content.json failed: {}", e))?;
+
+        
+
+        Ok(())
+    })();
+
+    if let Err(e) = stage_result {
+        let _ = fs::remove_dir_all(&staging_node_dir);
+        return Err(e);
+    }
+
+    // --- Commit node ---
+    fs::rename(&staging_node_dir, &node_dir)
+        .map_err(|e| format!("Failed to commit node {}: {}", memory_node.node_id, e))?;
+
+    // --- Atomically update metadata ---
+    let metadata_path = memory_dir.join("metadata.json");
+    let tmp_metadata_path = memory_dir.join("metadata.json.tmp");
+
+    fs::write(
+        &tmp_metadata_path,
+        serde_json::to_string_pretty(&memory_item)
+            .map_err(|e| format!("Serialize memory metadata failed: {}", e))?,
+    )
+    .map_err(|e| format!("Write temp metadata failed: {}", e))?;
+
+    fs::rename(&tmp_metadata_path, &metadata_path)
+        .map_err(|e| {
+            format!(
+                "Node '{}' created, but failed to update memory metadata: {}",
+                memory_node.node_id, e
+            )
+        })?;
 
     Ok(())
 }

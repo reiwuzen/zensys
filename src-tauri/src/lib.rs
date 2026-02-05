@@ -10,7 +10,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             storage::create_memory_spaces_dir,
-            storage::create_memory_item,
+            storage::create_memory_item_with_initial_node,
+            storage::add_new_node_to_existing_memory_item,
             storage::save_memory_item,
             storage::save_memory_node,
             storage::load_all_memory_items,

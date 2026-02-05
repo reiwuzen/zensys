@@ -1,3 +1,5 @@
+import { Tag } from "@/types/tag";
+
 export type MemoryType = "Diary" | "Fact" | "Event" | "Schedule" | "Generic";
 export type MemoryItem = {
   memory_id: string;
@@ -12,11 +14,12 @@ export type MemoryNode = {
   memory_id: string
   parent_node_id?: string
   created_at: string
-  content_string: string
+  // content_string: string
   content_json: string
   title: string
   memory_type: MemoryType
   change_reason?: string
+  tags?: Tag[]
 }
 
 export type selectedMemory = {

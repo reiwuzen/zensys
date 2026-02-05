@@ -21,9 +21,8 @@ active_node_id: initial_node_id
             memory_id,
             created_at: new Date().toISOString(),
             content_json: '',
-            content_string: '',
         }
-        await invoke("create_memory_item",{
+        await invoke("create_memory_item_with_initial_node",{
             memoryItem:memoryItem,
             memoryNode:memoryNode,
         })
@@ -31,17 +30,35 @@ active_node_id: initial_node_id
                 
         return {memoryItem, memoryNode};
     }
+    const addNewNodeToExistingMemoryItem = async (memoryItem: MemoryItem, title:string, type:MemoryType, content_json: string ) =>{
+        const new_node_id = v7();
+        memoryItem.active_node_id=new_node_id
+        const memoryNode: MemoryNode = {
+            memory_id: memoryItem.memory_id,
+            node_id: new_node_id,
+            title,
+            created_at: new Date().toISOString(),
+            content_json,
+            // content_string,
+            memory_type: type
+        }
+        await invoke("add_new_node_to_existing_memory_item", {
+            memoryItem:memoryItem,
+            memoryNode:memoryNode,
+        })
+        return {memoryItem,memoryNode}
+    }
     const loadAllMemoryItems = async (
         
     ) => {
         const memoryItems: MemoryItem[] = await invoke("load_all_memory_items");
         const memoryItemsWithActiveNodes = await Promise.all(memoryItems.map(async(item)=> {
             if (!item.active_node_id) {
-                console.log("no active node")
+                // console.log("no active node")
         return { item, active_node: null };
       }
       const active_node = await invoke<MemoryNode>("load_active_memory_node_of_memory_item", { memoryItem: item})
-      console.log("found active node: ",active_node)
+    //   console.log("found active node: ",active_node)
       return {item, active_node}
         }))
         return memoryItemsWithActiveNodes;
@@ -59,5 +76,5 @@ active_node_id: initial_node_id
 
        await invoke("set_active_node_id_of_memory_item", {memoryId: memory_id, nodeId: node_id})
     }
-    return { createMemoryItem, deleteMemoryItem, loadAllMemoryItems, setActiveNodeIdOfMemoryItem };
+    return { createMemoryItem,addNewNodeToExistingMemoryItem, deleteMemoryItem, loadAllMemoryItems, setActiveNodeIdOfMemoryItem };
 }

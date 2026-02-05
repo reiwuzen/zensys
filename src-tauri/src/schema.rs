@@ -21,7 +21,7 @@ pub struct MemoryNode {
     pub memory_id: String,
     pub parent_node_id: Option<String>,
     pub created_at: DateTime<Utc>,
-    pub content_string: String,
+    // pub content_string: String,
     pub content_json: serde_json::Value,
     pub title: String,
     pub memory_type: MemoryType,

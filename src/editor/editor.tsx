@@ -15,13 +15,14 @@ const Editor = () => {
     openMenu,
     setOpenMenu,
     insertBlockAfter,
-    changeBlockType,
+    // changeBlockType,
     deleteBlock,
     updateBlockContent,
     onClickBlockMenuItem,
     onSave,
   } = useEditorZen();
   const { switchActiveTab } = useActiveTab();
+  const {addNewNodeToExistingMemoryItem} = MemoryItemService();
   const { createMemoryNode } = MemoryNodeService();
   const {setActiveNodeIdOfMemoryItem} =MemoryItemService();
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -61,20 +62,15 @@ const Editor = () => {
           e.stopPropagation();
           e.preventDefault()
           if (memory === null) return
-          const { blocks: Blocks, content } = onSave(blocks);
+          const { blocks: Blocks } = onSave(blocks);
           
           
              {
-              const newMemoryNode = await createMemoryNode(
-                memory.mI.memory_id,
+               await addNewNodeToExistingMemoryItem(memory.mI,
                 memory.selectedMN.title,
-                memory.selectedMN.memory_type,
-                Blocks,
-                content,
-                "",
-                memory.selectedMN.node_id,
-              ) 
-              setActiveNodeIdOfMemoryItem(memory.mI.memory_id, newMemoryNode.node_id)
+                memory.selectedMN.memory_type,JSON.stringify(Blocks,null,2)
+              )
+  
               switchActiveTab('memory_space')
             }
           
