@@ -26,6 +26,7 @@ pub struct MemoryNode {
     pub title: String,
     pub memory_type: MemoryType,
     pub change_reason: Option<String>,
+    pub tags: Vec<Tag>
 }
 
 

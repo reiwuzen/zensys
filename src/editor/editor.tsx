@@ -23,7 +23,7 @@ const Editor = () => {
   } = useEditorZen();
   const { switchActiveTab } = useActiveTab();
   const {addNewNodeToExistingMemoryItem} = MemoryItemService();
-  const { createMemoryNode } = MemoryNodeService();
+  // const { createMemoryNode } = MemoryNodeService();
   const {setActiveNodeIdOfMemoryItem} =MemoryItemService();
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const blockMenuRef = useRef<HTMLDivElement>(null);

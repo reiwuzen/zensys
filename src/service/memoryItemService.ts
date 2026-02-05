@@ -1,11 +1,8 @@
 import { v7 } from "uuid";
 import { MemoryItem, MemoryNode, MemoryType } from "@/memory/schema";
-import { MemoryNodeService } from "./memoryNodeService";
 import { invoke } from "@tauri-apps/api/core";
 export const MemoryItemService = () => {
-    const {createMemoryNode,
-        //  loadMemoryNode 
-         } = MemoryNodeService();
+   
     const createMemoryItem = async (title: string, type:MemoryType) => {
         const memory_id = v7();
         const initial_node_id = v7();

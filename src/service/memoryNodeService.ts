@@ -1,42 +1,38 @@
-import { v7 } from "uuid";
-import { MemoryNode, MemoryType } from "@/memory/schema";
+// import { v7 } from "uuid";
+// import { MemoryNode, MemoryType } from "@/memory/schema";
+
+import { Tag } from "@/types/tag";
 import { invoke } from "@tauri-apps/api/core";
+
 export const MemoryNodeService = () => {
-  const createMemoryNode = async (
-    memory_id: string,
-    title: string,
-    memory_type: MemoryType,
-    content: unknown,
-    content_string: string,
-    comment: string,
-    parent_node_id?: string,
+  const addTagsToNode = async (
+    memoryId: string,
+    nodeId: string,
+    newTags: Tag[],
   ) => {
-    const newMemoryNode: MemoryNode = {
-      node_id: v7(),
-      memory_id,
-      parent_node_id,
-      title,
-      memory_type,
-      content_string,
-      content_json: JSON.stringify(content),
-      created_at: new Date().toISOString(),
-      change_reason: comment,
-    };
-
-    await invoke("save_memory_node", {
-                  memoryNode: newMemoryNode,
-                });
-
-    return newMemoryNode;
+    try {
+      await invoke("add_tags_to_node", {
+        memoryId: memoryId,
+        nodeId: nodeId,
+        newTags: newTags,
+      });
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    } finally {
+    }
   };
-  const loadMemoryNode = async (memory_id: string) => {
-    await invoke("load_memory_node", { memory_id });
-    
-    return;
+  const deleteTagFromNode = async () =>{
+    try{
+      return true
+    }catch(err){
+      console.log(err)
+      return false
+    }finally{}
   }
   return {
-    createMemoryNode,
-    loadMemoryNode
-    // appendMemoryNode,
+    addTagsToNode,
+    deleteTagFromNode,
   };
 };
