@@ -1,6 +1,5 @@
 import { useTabStore } from '@/store/useTabStore';
 import './workspace.scss'
-import Editor from '@/editor/editor';
 import { TAB_COMPONENTS } from '@/types/tab';
 const Workspace =()=> {
      const {activeTabId,tabs} = useTabStore();

@@ -1,8 +1,8 @@
 import "./memory_space.scss";
-import { useState } from "react";
 import MemorySpaceList from "./memory_spaces_list/memory_space_list";
 import MemorySpaceItem from "./memory_space_item/memory_space_item";
-import { MemoryNode, selectedMemory } from "@/memory/schema";
+import { MemoryNode, 
+} from "@/memory/schema";
 import { invoke } from "@tauri-apps/api/core";
 import { useActiveTab } from "@/hooks/useActiveTab";
 // import { useEditorZen } from "@/editor/useEditorZen";

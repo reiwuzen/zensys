@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { BlockType } from "@/types/editor";
 import { Block } from "@/types/editor";
 import { convertToMD } from "@/helper/convertToMD";
-import { MemoryItem, MemoryNode } from "@/memory/schema";
+
 
 type OpenMenu = {
   blockId: string;

@@ -2,7 +2,6 @@ import { useState } from "react";
 import "./templateForm.scss";
 import { MemoryTemplate } from "@/memory/template";
 import { MemoryItemService } from "@/service/memoryItemService";
-import { invoke } from "@tauri-apps/api/core";
 import { MemoryType } from "@/memory/schema";
 import { useActiveTab } from "@/hooks/useActiveTab";
 type TemplateFormProps = {

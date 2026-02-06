@@ -30,7 +30,7 @@ const BlockMenu = ({
       <div
         ref={blockMenuRef}
         className="blockMenu"
-        onMouseDown={(e) => e.stopPropagation()} // keep menu open
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="menu">
           <div className="menu-section">Basic blocks</div>
@@ -110,7 +110,11 @@ const BlockMenu = ({
         {textColorMenuToggle && (
           <TextColorMenu
             active="default"
-            onSelect={(color) => {
+            onSelect={
+              (
+                _color
+
+              ) => {
               // TODO: wire color
             }}
           />

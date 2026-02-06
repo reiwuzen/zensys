@@ -1,6 +1,5 @@
 import "./structure.scss";
 import { useState } from "react";
-import { v7 } from "uuid";
 import StructureList from "./structure_list/structure_list";
 // import { priorityBand } from "./helper";
 import { Tag } from "@/types/tag";

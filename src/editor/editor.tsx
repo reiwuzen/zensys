@@ -25,7 +25,7 @@ const Editor = () => {
   const { setActiveTabTypeAndView } = useActiveTab();
   const {addNewNodeToExistingMemoryItem} = MemoryItemService();
   // const { createMemoryNode } = MemoryNodeService();
-  const {setActiveNodeIdOfMemoryItem} =MemoryItemService();
+  // const {setActiveNodeIdOfMemoryItem} =MemoryItemService();
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const blockMenuRef = useRef<HTMLDivElement>(null);
 

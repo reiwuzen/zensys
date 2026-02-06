@@ -2,8 +2,6 @@ import { MemoryItemService } from "@/service/memoryItemService";
 import "./memory_space_list.scss"
 import { MemoryItem, MemoryNode } from "@/memory/schema";
 import { useEffect, useState } from "react";
-import { useMemoryStore } from "@/store/useMemoryStore";
-import { useActiveTab } from "@/hooks/useActiveTab";
 type MemoryItemWithActiveNode = {
   item: MemoryItem;
   active_node: MemoryNode;
@@ -12,9 +10,8 @@ type memorySpaceListProps = {
     onSelect: (memory: MemoryItemWithActiveNode) => void;
 }
 const MemorySpaceList = ({ onSelect }: memorySpaceListProps) => {
-  const {setActiveTabTypeAndView} = useActiveTab();
+  
     const { loadAllMemoryItems } = MemoryItemService();
-    const {setMemory} = useMemoryStore();
     
       const [memoryItems, setMemoryItems] = useState<
         MemoryItemWithActiveNode[]
@@ -57,11 +54,7 @@ const MemorySpaceList = ({ onSelect }: memorySpaceListProps) => {
                 >
                 <h2>{active_node?.title}</h2>
     
-                {/* {active_node && (
-                    <p className="memory-space-list-preview">
-                    {active_node.content?.slice(0, 120)}
-                  </p>
-                )} */}
+               
               </div>
             ))}
           </div>

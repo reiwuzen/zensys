@@ -2,7 +2,6 @@ import { useActiveTab } from "@/hooks/useActiveTab";
 import "./memory_space_item.scss";
 import { MemoryItemService } from "@/service/memoryItemService";
 import { Memory, useMemoryStore } from "@/store/useMemoryStore";
-import { useEffect } from "react";
 
 type MemorySpaceItemProps = {
   memory: Memory;
@@ -12,7 +11,10 @@ const MemorySpaceItem = ({ memory }: MemorySpaceItemProps) => {
   // const [editable, setEditable] = useState(false);
   const { deleteMemoryItem } = MemoryItemService();
   const { setActiveTabView } = useActiveTab();
-  const { memory: sMemory, setMemory, reloadMemory } = useMemoryStore();
+  const { 
+   
+     setMemory, 
+     } = useMemoryStore();
   const { activeNode } = memory;
 
   return (

@@ -2,7 +2,8 @@ import "./blockTypeMenu.scss";
 import { useEditorZen } from "./useEditorZen";
 import { Block } from "@/types/editor";
 
-import { BlockType,BLOCK_ITEMS as ITEMS } from "@/types/editor";
+import { 
+  BLOCK_ITEMS as ITEMS } from "@/types/editor";
 
 type Props = {
   selectedBlock: Block;
