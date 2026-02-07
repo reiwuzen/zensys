@@ -1,13 +1,13 @@
 import "./navbar.scss";
 import { useActiveTab } from "@/hooks/useActiveTab";
 const Navbar = () => {
-  const { setActiveTabType, activeTab, setActiveTabTypeAndView } = useActiveTab();
+  const {activeTab, setActiveTabTypeAndView } = useActiveTab();
   return (
     <nav id="navbar" className="navbar">
       <ul>
         <li 
         className={activeTab?.type === "overview" ? "active" : ""}
-        onClick={() => setActiveTabType("overview")}>
+        onClick={() => setActiveTabTypeAndView("overview",'list')}>
           <div>
 
           <svg
@@ -62,7 +62,7 @@ const Navbar = () => {
         </li>
         <li 
         className={activeTab?.type === "create" ? "active" : ""}
-        onClick={() => setActiveTabType("create")}>
+        onClick={() => setActiveTabTypeAndView("create",'picker')}>
         <div>
 
           <svg
@@ -86,7 +86,7 @@ const Navbar = () => {
         </li>
         <li
         className={activeTab?.type === "structure" ? "active" : ""}
-         onClick={() => setActiveTabType("structure")}>
+         onClick={() => setActiveTabTypeAndView("structure",'list')}>
           <div>
 
           <svg
@@ -114,7 +114,7 @@ const Navbar = () => {
         </li>
         <li 
         className={activeTab?.type === "settings" ? "active" : ""}
-         onClick={() => setActiveTabType("settings")}>
+         onClick={() => setActiveTabTypeAndView("settings",'general')}>
          <div>
 
           <svg

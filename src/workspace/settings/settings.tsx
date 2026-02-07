@@ -1,8 +1,11 @@
 import GeneralSettings from "./generalSettings/generalSettings";
 import IntelligenceSettings from "./intelligenceSettings/intelligentSettings";
 import MemorySettings from "./memorySettings/memorySettings";
+import AdvancedSettings from "./advancedSettings/advancedSettings";
+import PrivacySettings from "./privacySettings/privacySettings";
 import "./settings.scss";
 import { useState } from "react";
+import { useActiveTab } from "@/hooks/useActiveTab";
 
 type SettingsSection =
   | "general"
@@ -12,38 +15,39 @@ type SettingsSection =
   | "advanced";
 
 const Settings = () => {
-  const [active, setActive] = useState<SettingsSection>("general");
-
+  const {activeTab, setActiveTabTypeAndView} = useActiveTab();
+  // const [active, setActive] = useState<SettingsSection>("general");
+  if(!activeTab) return
   return (
     <div className="settings">
       <aside className="settings__sidebar">
         <h2 className="settings__title">Settings</h2>
 
         <nav>
-          <button onClick={() => setActive("general")} className={active === "general" ? "active" : ""}>
+          <button onClick={() =>setActiveTabTypeAndView('settings','general')} className={activeTab.view === "general" ? "active" : ""}>
             General
           </button>
-          <button onClick={() => setActive("memory")} className={active === "memory" ? "active" : ""}>
+          <button onClick={() => setActiveTabTypeAndView('settings','memory')} className={activeTab.view === "memory" ? "active" : ""}>
             Memory
           </button>
-          <button onClick={() => setActive("privacy")} className={active === "privacy" ? "active" : ""}>
+          <button onClick={() => setActiveTabTypeAndView('settings','privacy')} className={activeTab.view === "privacy" ? "active" : ""}>
             Privacy & Storage
           </button>
-          <button onClick={() => setActive("intelligence")} className={active === "intelligence" ? "active" : ""}>
+          <button onClick={() => setActiveTabTypeAndView('settings','intelligence')} className={activeTab.view === "intelligence" ? "active" : ""}>
             Intelligence
           </button>
-          <button onClick={() => setActive("advanced")} className={active === "advanced" ? "active" : ""}>
+          <button onClick={() => setActiveTabTypeAndView('settings','advanced')} className={activeTab.view === "advanced" ? "active" : ""}>
             Advanced
           </button>
         </nav>
       </aside>
 
       <section className="settings__panel">
-        {active === "general" && <GeneralSettings />}
-        {active === "memory" && <MemorySettings />}
-        {/* {active === "privacy" && <PrivacySettings />} */}
-        {active === "intelligence" && <IntelligenceSettings />}
-        {/* {active === "advanced" && <AdvancedSettings />} */}
+        {activeTab.view === "general" && <GeneralSettings />}
+        {activeTab.view === "memory" && <MemorySettings />}
+        {activeTab.view === "privacy" && <PrivacySettings />}
+        {activeTab.view === "intelligence" && <IntelligenceSettings />}
+        {activeTab.view === "advanced" && <AdvancedSettings />}
       </section>
     </div>
   );

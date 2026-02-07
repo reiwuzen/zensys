@@ -1,5 +1,5 @@
 // import { useTags } from "@/hooks/useTag";
-import { Tag } from "@/types/tag";
+import type { Tag } from "@/types/tag";
 
 type StructureDetailsProps = {
     tag: Tag;

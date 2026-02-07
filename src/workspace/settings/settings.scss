@@ -3,54 +3,32 @@
   height: 100%;
   background: #0f1115;
   color: #eaeaea;
-}
-
-.settings__sidebar {
-  width: 240px;
-  border-right: 1px solid #222;
-  padding: 16px;
-}
-
-.settings__title {
-  margin-bottom: 16px;
-  font-size: 1.2rem;
-}
-
-.settings__sidebar nav button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 6px;
-  background: none;
-  border: none;
-  color: #aaa;
-  text-align: left;
-  cursor: pointer;
-}
-
-.settings__sidebar nav button.active {
-  background: #1b1f2a;
-  color: #fff;
-}
-
-.settings__panel {
-  flex: 1;
-  padding: 24px;
-}
-
-.settings__section h3 {
-  margin-bottom: 16px;
-}
-
-.setting {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-}
-
-.hint {
-  font-size: 0.85rem;
-  color: #777;
-  margin-bottom: 12px;
+  .settings__title {
+    margin-bottom: 16px;
+    font-size: 1.2rem;
+  }
+  .settings__sidebar {
+    width: 240px;
+    border-right: 1px solid #222;
+    padding: 16px;
+    nav button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 6px;
+      background: none;
+      border: none;
+      color: #aaa;
+      text-align: left;
+      cursor: pointer;
+      &.active {
+       background: #1b1f2a;
+       color: #fff;
+      }
+    }
+  }
+  .settings__panel {
+    flex: 1;
+    padding: 24px;
+  }
 }
