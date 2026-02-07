@@ -10,15 +10,19 @@ export type Memory = {
 
 type MemoryStore = {
   memory: Memory | null;
-  setMemory: (m: Memory | null) => void;
+  setMemory: (m: Partial<Memory>) => void;
+  resetMemory: ()=> void
   reloadMemory: (memoryId: string) => Promise<Memory>;
 };
 
 export const useMemoryStore = create<MemoryStore>((set) => ({
   memory: null,
   setMemory: (m) =>
-    set({
-      memory: m,
+    set((s)=>({
+      memory: {...s.memory, ...m} as Memory,
+    })),
+    resetMemory: () => set({
+      memory: null
     }),
   reloadMemory: async (memoryId) => {
     const { memory_item: memoryItem, active_node:activeNode, nodes } =

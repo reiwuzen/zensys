@@ -1,5 +1,5 @@
 import "./editor.scss";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useEditorZen } from "./useEditorZen";
 import { focusEnd } from "@/helper/focusEl";
 import { AnyBlock, Block } from "@/types/editor";
@@ -11,9 +11,35 @@ const Editor = () => {
 
   const pendingFocusId = useRef<string | null>(null);
   const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const hydratedBlocks = useRef(new Set<string>());
 
-  const { blocks, insertBlockAfter, deleteBlock, updateBlockContent, openMenu, setOpenMenu,editable } =
-    useEditorZen();
+  const {
+    blocks,
+    insertBlockAfter,
+    deleteBlock,
+    updateBlockContent,
+    openMenu,
+    setOpenMenu,
+    editable,
+  } = useEditorZen();
+  const renderBlocks = useMemo(
+    () =>
+      blocks.map((b) => {
+        const rb = widenBlock(b);
+        const isTL = rb.type !== "code" && rb.type !== "equation";
+        return {
+          block: rb,
+          isTextLike: isTL,
+          initialText: isTL
+            ? rb.content
+                .filter((v) => v.type === "text")
+                .map((v) => v.text ?? "")
+                .join("")
+            : "",
+        };
+      }),
+    [blocks],
+  );
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -46,6 +72,12 @@ const Editor = () => {
       if (!el) return;
 
       const text = el.textContent ?? "";
+      updateBlockContent(block.id, [
+        {
+          type: "text",
+          text,
+        },
+      ]);
 
       if (text.length === 0 && blocks.length > 1 && block.type !== "code") {
         e.preventDefault();
@@ -54,23 +86,26 @@ const Editor = () => {
 
       return;
     }
-    if (e.key === 'Enter' && e.shiftKey){
-      return
+    if (e.key === "Enter" && e.shiftKey) {
+      return;
     }
-    if(e.key === 'Enter' && block.type === 'code' && e.ctrlKey || e.metaKey){
+    if (
+      (e.key === "Enter" && block.type === "code" && e.ctrlKey) ||
+      e.metaKey
+    ) {
       e.preventDefault();
 
       pendingFocusId.current = insertBlockAfter(block.id, block.type);
-      return
+      return;
     }
     if (e.key === "Enter") {
-      if (block.type === "code"){
+      if (block.type === "code") {
         // console.log('enter inside code block')
-        return}
-        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
 
       pendingFocusId.current = insertBlockAfter(block.id, block.type);
-      
     }
   };
 
@@ -94,7 +129,7 @@ const Editor = () => {
   return (
     <div className="editor">
       <div className="editable-content">
-        {blocks.map((block) => (
+        {renderBlocks.map(({ block, isTextLike, initialText }) => (
           <div className="editor-block-row" key={block.id}>
             {openMenu?.blockId === block.id && (
               <BlockMenu
@@ -117,7 +152,12 @@ const Editor = () => {
             )}
             {/* ---------- GUTTER ---------- */}
             <div className="editor-block-controls">
-              <button className="add" onClick={() => {setOpenMenu({blockId: block.id, mode: 'add'})}}>
+              <button
+                className="add"
+                onClick={() => {
+                  setOpenMenu({ blockId: block.id, mode: "add" });
+                }}
+              >
                 +
               </button>
               <button className="drag">⋮⋮</button>
@@ -126,11 +166,18 @@ const Editor = () => {
             {/* ---------- CONTENT ---------- */}
             <div
               className={`editor-block editor-${block.type}`}
-              contentEditable= {editable}
+              contentEditable={editable}
               suppressContentEditableWarning
               data-type={block.type}
               ref={(el) => {
-                if (el) blockRefs.current.set(block.id, el);
+                if (!el) return;
+                blockRefs.current.set(block.id, el);
+
+                if (!isTextLike) return;
+                if (hydratedBlocks.current.has(block.id)) return;
+
+                el.textContent = initialText;
+                hydratedBlocks.current.add(block.id);
               }}
               onKeyDown={(e) => handleKeyDown(e, widenBlock(block))}
               onInput={(e) => handleInput(e, block)}
