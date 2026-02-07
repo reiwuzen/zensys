@@ -4,46 +4,66 @@
   max-width: 760px;
   margin: 0 0;
   padding: 2.5rem 2rem;
-  .memory-node-edit-btn {
-    top: 80px;
-    right: 40px;
-    padding: 10px;
-    position: absolute;
-    border: none;
-    border-radius: 10px;
-    &:hover {
-      cursor: pointer;
-      background-color: #a9a9a9;
+  .memory-node-accessory-bar {
+      position: absolute;
+      z-index: 100;
+      top: 80px;
+      right: 40px;
+      display: flex;
+      gap: 4px;
+    .memory-node-edit-btn {
+      // top: 80px;
+      // right: 40px;
+      // position: absolute;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      svg {
+        height: 16px;
+        width: 18px;
+      }
+      &:hover {
+        cursor: pointer;
+        background-color: #a9a9a9;
+      }
     }
-  }
-  .memory-node-delete-btn {
-    top: 80px;
-    right: 90px;
-    padding: 10px;
-    position: absolute;
-    border: none;
-    border-radius: 10px;
-    &:hover {
-      cursor: pointer;
-      background-color: #a9a9a9;
+    .memory-node-delete-btn {
+      // top: 80px;
+      // right: 90px;
+      // position: absolute;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      svg {
+        height: 16px;
+        width: 18px;
+      }
+      &:hover {
+        cursor: pointer;
+        background-color: #a9a9a9;
+      }
     }
-  }
-  .memory-node-add_tag-btn {
-    top: 80px;
-    right: 155px;
-    padding: 10px;
-    position: absolute;
-    border: none;
-    border-radius: 10px;
-    &:hover {
-      cursor: pointer;
-      background-color: #a9a9a9;
+    .memory-node-add_tag-btn {
+      // top: 80px;
+      // right: 155px;
+      // position: absolute;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      svg {
+        height: 16px;
+        width: 18px;
+      }
+      &:hover {
+        cursor: pointer;
+        background-color: #a9a9a9;
+      }
     }
   }
   .tag-picker {
     position: absolute;
-    top: 20%;
-    right: 2%;
+    top: 100%;
+    right: -20%;
     margin-top: 8px;
 
     width: 220px;
@@ -133,18 +153,18 @@
     }
     .tag {
       padding: 4px 10px;
-    font-size: 12px;
+      font-size: 12px;
 
-    border-radius: 999px;
-    background: rgba(184, 184, 184, 0.804);
+      border-radius: 999px;
+      background: rgba(184, 184, 184, 0.804);
 
-    cursor: pointer;
-    transition:
-      background 0.15s ease,
-      transform 0.1s ease;
-      &:hover{
-         background: rgba(183, 171, 171, 0.68);
-    transform: translateY(-1px);
+      cursor: pointer;
+      transition:
+        background 0.15s ease,
+        transform 0.1s ease;
+      &:hover {
+        background: rgba(183, 171, 171, 0.68);
+        transform: translateY(-1px);
       }
     }
   }
