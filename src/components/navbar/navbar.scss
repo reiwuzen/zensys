@@ -25,13 +25,6 @@ nav#navbar {
     gap: 12px;
     padding: 0;
     margin: 0;
-    
-    .icon {
-      display: flex;
-      text-align: left;
-      
-      justify-content: flex-start;
-    }
 
 
     li {
@@ -60,6 +53,7 @@ nav#navbar {
       transition: all 0.2s ease;
 
       svg {
+        margin-top: 6px;
         width: 25px;
         height: 25px;
         transition: transform 0.25s ease;
