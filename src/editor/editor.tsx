@@ -5,6 +5,7 @@ import { focusEnd } from "@/helper/focusEl";
 import { AnyBlock, Block } from "@/types/editor";
 import { widenBlock } from "@/helper/widenBlock";
 import BlockMenu from "./blockMenu";
+import { toast } from "sonner";
 
 const Editor = () => {
   const blockMenuRef = useRef<HTMLDivElement>(null);
@@ -111,7 +112,7 @@ const Editor = () => {
   };
 
   /* ---------- Content sync ---------- */
-  const handleInput = (e: React.FormEvent<HTMLDivElement>, block: Block) => {
+  const handleInput = (e: React.FormEvent<HTMLSpanElement>, block: Block) => {
     if (block.type === "code") {
       updateBlockContent(block.id, {
         text: e.currentTarget.textContent ?? "",
@@ -142,13 +143,17 @@ const Editor = () => {
                     type !== "bullet-list" &&
                     type !== "number-list" &&
                     type !== "todo"
-                  )
-                    {pendingFocusId.current = insertBlockAfter(block.id, type);}
-                    else {
-                      const nId = insertBlockAfter(block.id, 'list-item')
-                      updateBlockMeta(nId, {style: type,depth: 0 , checked: false})
-                      pendingFocusId.current = nId
-                    }
+                  ) {
+                    pendingFocusId.current = insertBlockAfter(block.id, type);
+                  } else {
+                    const nId = insertBlockAfter(block.id, "list-item");
+                    updateBlockMeta(nId, {
+                      style: type,
+                      depth: 0,
+                      checked: false,
+                    });
+                    pendingFocusId.current = nId;
+                  }
                 }}
                 onChangeBlockType={(_type) => {
                   // optional: implement later
@@ -172,8 +177,7 @@ const Editor = () => {
             {/* ---------- CONTENT ---------- */}
             <div
               className={`editor-block editor-${block.type}`}
-              contentEditable={editable}
-              suppressContentEditableWarning
+              contentEditable={false}
               data-type={block.type}
               data-meta-type={
                 block.type === "list-item" ? block.meta.style : ""
@@ -187,15 +191,7 @@ const Editor = () => {
               ref={(el) => {
                 if (!el) return;
                 blockRefs.current.set(block.id, el);
-
-                if (!isTextLike) return;
-                if (hydratedBlocks.current.has(block.id)) return;
-
-                el.textContent = initialText;
-                hydratedBlocks.current.add(block.id);
               }}
-              onKeyDown={(e) => handleKeyDown(e, widenBlock(block))}
-              onInput={(e) => handleInput(e, block)}
             >
               {block.type === "list-item" && block.meta.style === "todo" && (
                 <span
@@ -203,12 +199,31 @@ const Editor = () => {
                   contentEditable={false}
                   onClick={(e) => {
                     e.stopPropagation();
-                    const v = block.meta.checked;
-                    updateBlockMeta(block.id,{style:'todo',checked: !!!v,depth:0})
-                    // toggleTodo(block.id);
+                    if (editable === true) {
+                      updateBlockMeta(block.id, {
+                        ...block.meta,
+                        checked: !block.meta.checked,
+                      });
+                    } else {
+                      toast.info("Set memory-item to be editable");
+                    }
                   }}
                 />
               )}
+
+              <span
+                className="editor-text"
+                contentEditable={editable}
+                suppressContentEditableWarning
+                ref={(el) => {
+                  if (!el) return;
+                  if (hydratedBlocks.current.has(block.id)) return;
+                  el.textContent = initialText;
+                  hydratedBlocks.current.add(block.id);
+                }}
+                onInput={(e) => handleInput(e, block)}
+                onKeyDown={(e) => handleKeyDown(e, widenBlock(block))}
+              />
             </div>
           </div>
         ))}

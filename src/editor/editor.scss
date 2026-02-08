@@ -163,11 +163,13 @@
             margin-left: 32px;
           }
 
-          &[data-meta-type="bullet"]::before {
+          &[data-meta-type="bullet-list"]::before {
+            line-height: 2.6;
             content: "•";
           }
 
-          &[data-meta-type="number"]::before {
+          &[data-meta-type="number-list"]::before {
+            line-height: 2.6;
             content: counter(list-item) ".";
             font-variant-numeric: tabular-nums;
           }
@@ -186,6 +188,7 @@
               cursor: pointer;
 
               &::before {
+                line-height: 2.6;
                 content: "☐";
                 font-size: 14px;
                 opacity: 0.7;
