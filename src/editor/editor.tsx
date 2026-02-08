@@ -18,6 +18,7 @@ const Editor = () => {
     insertBlockAfter,
     deleteBlock,
     updateBlockContent,
+    updateBlockMeta,
     openMenu,
     setOpenMenu,
     editable,
@@ -142,9 +143,14 @@ const Editor = () => {
                     type !== "number-list" &&
                     type !== "todo"
                   )
-                    pendingFocusId.current = insertBlockAfter(block.id, type);
+                    {pendingFocusId.current = insertBlockAfter(block.id, type);}
+                    else {
+                      const nId = insertBlockAfter(block.id, 'list-item')
+                      updateBlockMeta(nId, {style: type,depth: 0 , checked: false})
+                      pendingFocusId.current = nId
+                    }
                 }}
-                onChangeBlockType={(type) => {
+                onChangeBlockType={(_type) => {
                   // optional: implement later
                   // pendingFocusId.current = replaceBlock(block.id, type);
                 }}
@@ -169,6 +175,15 @@ const Editor = () => {
               contentEditable={editable}
               suppressContentEditableWarning
               data-type={block.type}
+              data-meta-type={
+                block.type === "list-item" ? block.meta.style : ""
+              }
+              data-meta-depth={
+                block.type === "list-item" ? block.meta.depth : ""
+              }
+              data-meta-checked={
+                block.type === "list-item" ? block.meta.checked : ""
+              }
               ref={(el) => {
                 if (!el) return;
                 blockRefs.current.set(block.id, el);
@@ -181,7 +196,20 @@ const Editor = () => {
               }}
               onKeyDown={(e) => handleKeyDown(e, widenBlock(block))}
               onInput={(e) => handleInput(e, block)}
-            />
+            >
+              {block.type === "list-item" && block.meta.style === "todo" && (
+                <span
+                  className="todo-checkbox"
+                  contentEditable={false}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const v = block.meta.checked;
+                    updateBlockMeta(block.id,{style:'todo',checked: !!!v,depth:0})
+                    // toggleTodo(block.id);
+                  }}
+                />
+              )}
+            </div>
           </div>
         ))}
       </div>
