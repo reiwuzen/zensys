@@ -3,8 +3,9 @@ import "./memory_space_item.scss";
 import { MemoryItemService } from "@/service/memoryItemService";
 import { Memory, useMemoryStore } from "@/store/useMemoryStore";
 import { useTags } from "@/hooks/useTag";
-import { memo, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor from "@/editor/editor";
+import { toast } from "sonner";
 import { useEditorZen } from "@/editor/useEditorZen";
 import { Block } from "@/types/editor";
 type MemorySpaceItemProps = {
@@ -42,6 +43,30 @@ const MemorySpaceItem = ({ memory }: MemorySpaceItemProps) => {
     document.addEventListener("mousedown", handleTagPicker);
     return () => document.removeEventListener("mousedown", handleTagPicker);
   }, []);
+
+  const saveNode = async () => {
+  await addNewNodeToExistingMemoryItem(
+    memory.memoryItem,
+    activeNode.title,
+    activeNode.memory_type,
+    JSON.stringify(blocks)
+  );
+
+  await reloadMemory(activeNode.memory_id);
+  setEditable(false);
+};
+
+const deleteAndExit = async () => {
+  const res = await deleteMemoryItem(activeNode.memory_id);
+
+  if (!res.ok) {
+    throw new Error(res.error ?? "Failed to delete memory");
+  }
+
+  setActiveTabView("list");
+};
+
+
   // console.log(JSON.parse(activeNode.content_json))
   return (
     <article className="memory-node">
@@ -81,9 +106,12 @@ const MemorySpaceItem = ({ memory }: MemorySpaceItemProps) => {
           <button
             className="memory-node-save-btn"
             onClick={async() => {
-             await addNewNodeToExistingMemoryItem(memory.memoryItem,activeNode.title,activeNode.memory_type,JSON.stringify(blocks))
-             await reloadMemory(activeNode.memory_id)
-              setEditable(false);
+              toast.promise(saveNode(),{
+                loading: 'Saving node',
+                success: 'Node saved successfully',
+                error: (err) =>  `Failed to save: ${err}`
+              })
+             
             }}
           >
             <svg
@@ -106,12 +134,11 @@ const MemorySpaceItem = ({ memory }: MemorySpaceItemProps) => {
           className="memory-node-delete-btn"
           onClick={async (e) => {
             e.stopPropagation();
-            const ok = await deleteMemoryItem(activeNode.memory_id);
-            if (!ok) {
-              // show toast, log, scream, something
-              return;
-            }
-            setActiveTabView("list");
+            toast.promise(deleteAndExit(), {
+              loading: 'Deleting...',
+              success: 'Delete successfully',
+              error: (e) => e.message
+            })
           }}
         >
           <svg
