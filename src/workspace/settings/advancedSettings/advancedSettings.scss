@@ -1,0 +1,79 @@
+.settings_section {
+  padding: 26px;
+  font-family: "Inter", system-ui, sans-serif;
+
+  h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .settings_group {
+    margin-bottom: 24px;
+
+    h4 {
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #9fb0c3;
+    }
+  }
+
+  .setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #1f2f46;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: 0.2s;
+  }
+
+  .setting:hover {
+    background: #243652;
+  }
+
+  button {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #00a8b5;
+    color: white;
+    cursor: pointer;
+  }
+
+  button.danger {
+    background: #c93c3c;
+  }
+
+  input[type="checkbox"] {
+    width: 42px;
+    height: 22px;
+    appearance: none;
+    background: #324a6b;
+    border-radius: 20px;
+    position: relative;
+  }
+
+  input[type="checkbox"]::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: 0.3s;
+  }
+
+  input[type="checkbox"]:checked {
+    background: #00a8b5;
+  }
+
+  input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+  }
+}
