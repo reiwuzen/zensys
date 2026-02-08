@@ -66,7 +66,7 @@ export const MemoryItemService = () => {
     );
     return memoryItemsWithActiveNodes;
   };
-  const deleteMemoryItem = async (memoryId: string): Promise<Result<void,string>> => {
+  const deleteMemoryItem = async (memoryId: string): Promise<Result<never,string>> => {
     try {
       await invoke("delete_memory_item", { memoryId });
       // console.log("delete is called and tried")

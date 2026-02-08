@@ -20,8 +20,7 @@ export const MemoryNodeService = () => {
     } catch (err) {
       console.log(err);
       return false;
-    } finally {
-    }
+    } 
   };
   const deleteTagFromNode = async () =>{
     try{
@@ -29,7 +28,7 @@ export const MemoryNodeService = () => {
     }catch(err){
       console.log(err)
       return false
-    }finally{}
+    }
   }
   return {
     addTagsToNode,
