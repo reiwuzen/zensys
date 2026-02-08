@@ -2,6 +2,7 @@ import { v7 } from "uuid";
 import { MemoryItem, MemoryNode, MemoryType } from "@/memory/schema";
 import { invoke } from "@tauri-apps/api/core";
 import { createBlock } from "@/helper/createBlock";
+import { Result } from "@/types/result";
 export const MemoryItemService = () => {
   const createMemoryItem = async (title: string, type: MemoryType) => {
     const memory_id = v7();
@@ -65,13 +66,15 @@ export const MemoryItemService = () => {
     );
     return memoryItemsWithActiveNodes;
   };
-  const deleteMemoryItem = async (memoryId: string) => {
+  const deleteMemoryItem = async (memoryId: string): Promise<Result<void,string>> => {
     try {
       await invoke("delete_memory_item", { memoryId });
-      console.log("delete is called and tried")
-      return { ok: true };
+      // console.log("delete is called and tried")
+      return {
+        ok: true,
+      }
     } catch (err) {
-        console.log("delete is called and cathced err", err)
+        // console.log("delete is called and cathced err", err)
       return {
         ok: false,
         error: String(err),

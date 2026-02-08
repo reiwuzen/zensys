@@ -1,5 +1,5 @@
 import "./editor.scss";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useEditorZen } from "./useEditorZen";
 import { focusEnd } from "@/helper/focusEl";
 import { AnyBlock, Block } from "@/types/editor";
