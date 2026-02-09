@@ -34,7 +34,9 @@ const MemorySpaceItem = () => {
         setShowTagPicker(false);
     };
     document.addEventListener("mousedown", handleTagPicker);
-    return () => document.removeEventListener("mousedown", handleTagPicker);
+    return () => {
+      editableActions.disable();
+      document.removeEventListener("mousedown", handleTagPicker);}
   }, []);
 
   const saveNode = async () => {
