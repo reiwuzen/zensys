@@ -24,129 +24,193 @@ pub fn create_memory_spaces_dir(app: AppHandle) -> Result<PathBuf, String> {
 
 
 
-
-/// fn to load all memory items
+/// Load all the memories
 #[command]
-pub fn load_all_memory_items(app: AppHandle) -> Result<Vec<MemoryItem>, String> {
-    let app_dir = get_app_dir(app)?;
-    let memory_spaces_dir = app_dir.join("memory_spaces");
+pub fn load_all_memories(app: AppHandle) -> Result<Vec<MemoryPayload>, String> {
+    let memory_spaces_dir = create_memory_spaces_dir(app)?;
 
-    let mut all_memory_items = Vec::new();
+    let mut result = Vec::new();
 
-    // 1. Ensure memory_spaces exists
-    let entries = std::fs::read_dir(&memory_spaces_dir)
+    let memory_entries = std::fs::read_dir(&memory_spaces_dir)
         .map_err(|e| format!("Failed to read memory_spaces dir: {}", e))?;
 
-    for entry in entries {
+    for entry in memory_entries {
         let entry = entry.map_err(|e| e.to_string())?;
-        let path = entry.path();
+        let memory_dir = entry.path();
 
-        // 2. Only care about directories
-        if !path.is_dir() {
+        if !memory_dir.is_dir() {
             continue;
         }
 
-        // 3. metadata.json path
-        let metadata_path = path.join("metadata.json");
+        /* ─────────────────── load MemoryItem ─────────────────── */
 
-        if !metadata_path.exists() {
-            // skip silently OR log
-            continue;
+        let memory_metadata_path = memory_dir.join("metadata.json");
+        if !memory_metadata_path.exists() {
+            continue; // orphaned dir, ignore
         }
 
-        // 4. Read file
-        let metadata_str = std::fs::read_to_string(&metadata_path)
-            .map_err(|e| format!("Failed to read {:?}: {}", metadata_path, e))?;
+        let memory_metadata_str = std::fs::read_to_string(&memory_metadata_path)
+            .map_err(|e| format!("Failed to read {:?}: {}", memory_metadata_path, e))?;
 
-        // 5. Deserialize
-        let memory_item: MemoryItem = serde_json::from_str(&metadata_str)
-            .map_err(|e| format!("Invalid metadata.json in {:?}: {}", metadata_path, e))?;
+        let memory_item: MemoryItem = serde_json::from_str(&memory_metadata_str)
+            .map_err(|e| format!("Invalid metadata.json in {:?}: {}", memory_metadata_path, e))?;
 
-        all_memory_items.push(memory_item);
+        /* ─────────────────── load nodes ─────────────────── */
+
+        let nodes_dir = memory_dir.join("nodes");
+        let mut nodes = Vec::new();
+        let mut active_node: Option<MemoryNode> = None;
+
+        if nodes_dir.exists() {
+            let node_entries = std::fs::read_dir(&nodes_dir)
+                .map_err(|e| format!("Failed to read nodes dir {:?}: {}", nodes_dir, e))?;
+
+            for node_entry in node_entries {
+                let node_entry = node_entry.map_err(|e| e.to_string())?;
+                let node_dir = node_entry.path();
+
+                if !node_dir.is_dir() {
+                    continue;
+                }
+
+                let node_metadata_path = node_dir.join("metadata.json");
+                if !node_metadata_path.exists() {
+                    continue;
+                }
+
+                let node_metadata_str = std::fs::read_to_string(&node_metadata_path)
+                    .map_err(|e| format!("Failed to read {:?}: {}", node_metadata_path, e))?;
+
+                let node: MemoryNode = serde_json::from_str(&node_metadata_str)
+                    .map_err(|e| format!("Invalid metadata.json in {:?}: {}", node_metadata_path, e))?;
+
+                // integrity check
+                if node.memory_id != memory_item.memory_id {
+                    return Err(format!(
+                        "Memory ID mismatch in node {:?}",
+                        node_metadata_path
+                    ));
+                }
+
+                if node.node_id == memory_item.active_node_id {
+                    active_node = Some(node.clone());
+                }
+
+                nodes.push(node);
+            }
+        }
+
+        let active_node = active_node.ok_or_else(|| {
+            format!(
+                "Active node '{}' not found for memory '{}'",
+                memory_item.active_node_id, memory_item.memory_id
+            )
+        })?;
+
+        result.push(MemoryPayload {
+            memory_item,
+            nodes,
+            active_node,
+        });
     }
 
-    Ok(all_memory_items)
+    Ok(result)
 }
 
-/// fn to load the active memory node of a given memory item
+/// Load one memory item give the id
 #[command]
-pub fn load_active_memory_node_of_memory_item(
+pub fn load_memory_payload(
     app: AppHandle,
-    memory_item: MemoryItem,
-) -> Result<MemoryNode, String> {
+    memory_id: String,
+) -> Result<MemoryPayload, String> {
     let app_dir = get_app_dir(app)?;
 
-    let active_memory_node_dir = app_dir
+    let memory_dir = app_dir
         .join("memory_spaces")
-        .join(&memory_item.memory_id)
-        .join("nodes")
-        .join(&memory_item.active_node_id);
+        .join(&memory_id);
 
-    let metadata_path = active_memory_node_dir.join("metadata.json");
-    if !metadata_path.exists() {
+    if !memory_dir.exists() || !memory_dir.is_dir() {
+        return Err(format!("Memory '{}' does not exist", memory_id));
+    }
+
+    /* ─────────────────── load MemoryItem ─────────────────── */
+
+    let memory_metadata_path = memory_dir.join("metadata.json");
+    if !memory_metadata_path.exists() {
         return Err(format!(
-            "Active memory node metadata does not exist: {:?}",
-            metadata_path
+            "metadata.json missing for memory '{}'",
+            memory_id
         ));
     }
 
-    let metadata_str = std::fs::read_to_string(&metadata_path)
-        .map_err(|e| format!("Failed to read {:?}: {}", metadata_path, e))?;
+    let memory_metadata_str = std::fs::read_to_string(&memory_metadata_path)
+        .map_err(|e| format!("Failed to read {:?}: {}", memory_metadata_path, e))?;
 
-    let active_memory_node: MemoryNode = serde_json::from_str(&metadata_str)
-        .map_err(|e| format!("Invalid metadata.json in {:?}: {}", metadata_path, e))?;
+    let memory_item: MemoryItem = serde_json::from_str(&memory_metadata_str)
+        .map_err(|e| format!("Invalid metadata.json in {:?}: {}", memory_metadata_path, e))?;
 
-    Ok(active_memory_node)
-}
+    /* ─────────────────── load nodes ─────────────────── */
 
-/// fn to load all memory nodes of a given memory item
-#[command]
-pub fn load_all_memory_nodes_of_memory_item(
-    app: AppHandle,
-    memory_id: String,
-) -> Result<Vec<MemoryNode>, String> {
-    let app_dir = get_app_dir(app)?;
-    let mut memory_nodes = Vec::new();
+    let nodes_dir = memory_dir.join("nodes");
+    if !nodes_dir.exists() {
+        return Err(format!("Nodes directory missing for memory '{}'", memory_id));
+    }
 
-    let nodes_dir = app_dir.join("memory_spaces").join(&memory_id).join("nodes");
+    let mut nodes = Vec::new();
+    let mut active_node: Option<MemoryNode> = None;
 
-    let entries = std::fs::read_dir(&nodes_dir)
+    let node_entries = std::fs::read_dir(&nodes_dir)
         .map_err(|e| format!("Failed to read nodes dir {:?}: {}", nodes_dir, e))?;
 
-    for entry in entries {
+    for entry in node_entries {
         let entry = entry.map_err(|e| e.to_string())?;
         let node_dir = entry.path();
 
-        // 1. Only node directories
         if !node_dir.is_dir() {
             continue;
         }
 
-        let metadata_path = node_dir.join("metadata.json");
-
-        // 2. metadata.json must exist
-        if !metadata_path.exists() {
-            continue; // or log warning
+        let node_metadata_path = node_dir.join("metadata.json");
+        if !node_metadata_path.exists() {
+            continue;
         }
 
-        // 3. Read metadata
-        let metadata_str = std::fs::read_to_string(&metadata_path)
-            .map_err(|e| format!("Failed to read {:?}: {}", metadata_path, e))?;
+        let node_metadata_str = std::fs::read_to_string(&node_metadata_path)
+            .map_err(|e| format!("Failed to read {:?}: {}", node_metadata_path, e))?;
 
-        // 4. Deserialize
-        let memory_node: MemoryNode = serde_json::from_str(&metadata_str)
-            .map_err(|e| format!("Invalid metadata.json in {:?}: {}", metadata_path, e))?;
+        let node: MemoryNode = serde_json::from_str(&node_metadata_str)
+            .map_err(|e| format!("Invalid metadata.json in {:?}: {}", node_metadata_path, e))?;
 
-        // 5. Optional integrity check (HIGHLY recommended)
-        if memory_node.memory_id != memory_id {
-            return Err(format!("Memory ID mismatch in node {:?}", metadata_path));
+        // HARD invariant — no silent corruption
+        if node.memory_id != memory_id {
+            return Err(format!(
+                "Memory ID mismatch in node {:?}",
+                node_metadata_path
+            ));
         }
 
-        memory_nodes.push(memory_node);
+        if node.node_id == memory_item.active_node_id {
+            active_node = Some(node.clone());
+        }
+
+        nodes.push(node);
     }
 
-    Ok(memory_nodes)
+    let active_node = active_node.ok_or_else(|| {
+        format!(
+            "Active node '{}' not found for memory '{}'",
+            memory_item.active_node_id, memory_id
+        )
+    })?;
+
+    Ok(MemoryPayload {
+        memory_item,
+        nodes,
+        active_node,
+    })
 }
+
+
 
 #[command]
 pub fn set_active_node_id_of_memory_item(
