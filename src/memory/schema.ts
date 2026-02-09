@@ -22,8 +22,3 @@ export type MemoryNode = {
   tags: Tag[]
 }
 
-export type selectedMemory = {
-  memory_item: MemoryItem
-  active_node: MemoryNode
-  nodes: MemoryNode[]
-}
