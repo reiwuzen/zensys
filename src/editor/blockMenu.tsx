@@ -14,10 +14,7 @@ type BlockMenuProps = {
   mode: BlockMenuMode;
   onClose: () => void;
 
-  onAddBlock: (type:Exclude<BlockType, "list-item">
-    | "bullet-list"
-    | "number-list"
-    | "todo" ) => void;
+  onAddBlock: (type:BlockType) => void;
   onChangeBlockType: (b:AnyBlock) => void;
 };
 

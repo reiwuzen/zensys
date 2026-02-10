@@ -10,7 +10,9 @@ export const BLOCK_DEFAULT_CONTENT: {
   quote: [],
   callout: [],
   toggle: [],
-  "list-item": [],
+  bullet: [],
+  number: [],
+  todo:[],
   code: {
     text: "",
   },
@@ -29,19 +31,22 @@ export const BLOCK_DEFAULT_META: {
   quote: {},
   callout: {},
   toggle: { collapsed: false },
-  "list-item": {
-    style: "bullet",
+  bullet: {
+
     depth: 0,
+  },
+  number: {
+    depth:0
+  },
+  todo: {
+    depth: 0
   },
   code: {},
   equation: {},
 };
 export const BLOCK_ITEMS: {
-  type:
-    | Exclude<BlockType, "list-item">
-    | "bullet-list"
-    | "number-list"
-    | "todo";
+  type: BlockType
+   
   icon: string;
   label: string;
   hint?: string;
@@ -87,13 +92,13 @@ export const BLOCK_ITEMS: {
     label: "Toggle",
   },
   {
-    type: "bullet-list",
+    type: "bullet",
     icon: "•",
     label: "Bullet-list",
     hint: "-",
   },
   {
-    type: "number-list",
+    type: "number",
     icon: "1.",
     label: "Number-list",
     hint: "1.",

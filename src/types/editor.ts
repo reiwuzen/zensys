@@ -34,7 +34,9 @@ export type BlockContentMap = {
   quote: InlineNode[];
   callout: InlineNode[];
   toggle: InlineNode[];
-  "list-item": InlineNode[];
+  bullet: InlineNode[];
+  number: InlineNode[];
+  todo: InlineNode[];
   code: { text: string };
   equation: { latex: string };
 };
@@ -57,47 +59,37 @@ export type BlockMetaMap = {
   quote: object;
   callout: { icon?: string };
   toggle: { collapsed: boolean };
-  "list-item": {
-    style: "bullet" | "number" | "todo";
-    checked?: boolean;
-    depth: number;
-  };
+  bullet: { depth: number };
+  number: { depth: number };
+  todo: { checked?: true; depth: number };
   code: { language?: string };
   equation: object;
 };
 
-
-
 export type EditorState = {
   /* ---------- STATE ---------- */
   blocks: Block[];
-  setBlocks: (b:Block[]) => void
-  editable: boolean
-  setEditable: (v: boolean) =>void
+  setBlocks: (b: Block[]) => void;
+  editable: boolean;
+  setEditable: (v: boolean) => void;
   openMenu: OpenMenu;
 
   setOpenMenu: (menu: OpenMenu) => void;
 
-  insertBlockAfter: <T extends BlockType>(
-    afterId: string,
-    type: T
-  ) => string;
+  insertBlockAfter: <T extends BlockType>(afterId: string, type: T) => string;
 
-  changeType: <T extends BlockType>(
-    id: string,
-    type: T
-  ) => string;
+  changeType: <T extends BlockType>(id: string, type: T) => string;
 
   deleteBlock: (id: string) => string;
 
   updateBlockContent: <T extends BlockType>(
     id: string,
-    content: Block<T>["content"]
+    content: Block<T>["content"],
   ) => void;
 
   updateBlockMeta: <T extends BlockType>(
     id: string,
-    meta: Partial<Block<T>["meta"]>
+    meta: Partial<Block<T>["meta"]>,
   ) => void;
 
   onSave: () => { blocks: Block[] };

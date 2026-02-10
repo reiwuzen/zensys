@@ -9,7 +9,7 @@ type Props = {
 };
 
 const BlockTypeMenu = ({ selectedBlock, onChangeType }: Props) => {
-  const { blockActions, openMenuActions, updateBlock } = useEditorZen();
+  const { blockActions, openMenuActions,  } = useEditorZen();
   return (
     <div className="block-type-menu">
       {ITEMS.map((item) => (
@@ -21,18 +21,14 @@ const BlockTypeMenu = ({ selectedBlock, onChangeType }: Props) => {
           onMouseDown={(e) => {
             e.preventDefault(); // editor focus safety
 
-            if (item.type === 'bullet-list' || item.type === 'number-list' || item.type === 'todo'){
-                blockActions.changeType(selectedBlock.id,'list-item')
-                updateBlock.meta(selectedBlock.id,{style: item.type,collapsed:false})
-            }
-            else blockActions.changeType(selectedBlock.id, item.type)
+            
+             blockActions.changeType(selectedBlock.id, item.type)
             onChangeType(selectedBlock)
             openMenuActions.setToNull()
           }}
         >
           <span className="icon">{item.icon}</span>
           <span className="label">{item.label}</span>
-          {selectedBlock.type === 'list-item' && selectedBlock.meta.style === item.type && <span className="check">✓</span> }
           {selectedBlock.type === item.type && <span className="check">✓</span>}
           {/* {item.type === "page-in" && <span className="arrow">›</span>} */}
         </button>

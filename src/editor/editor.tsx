@@ -5,7 +5,8 @@ import { focusEnd } from "@/helper/focusEl";
 import { AnyBlock, Block } from "@/types/editor";
 import { widenBlock } from "@/helper/widenBlock";
 import BlockMenu from "./blockMenu";
-import { toast } from "sonner";
+import BlockEditor from "./blockEditor/blockEditor";
+// import { toast } from "sonner";
 
 const Editor = () => {
   const blockMenuRef = useRef<HTMLDivElement>(null);
@@ -16,33 +17,33 @@ const Editor = () => {
 
   const {
     blocks,
-    
+
     openMenu,
     updateBlock,
     editable,
     openMenuActions,
-    blockActions
+    blockActions,
   } = useEditorZen();
 
   function useOnTrue(x: boolean, fn: () => void) {
-  const prev = useRef(false);
+    const prev = useRef(false);
 
-  useEffect(() => {
-    if (!prev.current && x) {
-      fn();
-    }
-    prev.current = x;
-  }, [x, fn]);
-}
+    useEffect(() => {
+      if (!prev.current && x) {
+        fn();
+      }
+      prev.current = x;
+    }, [x, fn]);
+  }
   useOnTrue(editable, () => {
-    const id = blocks.at(-1).id
+    const id = blocks.at(-1).id;
     if (!id) {
-      const el = blockRefs.current.get(blocks[0].id)
-      focusEnd(el)
+      const el = blockRefs.current.get(blocks[0].id);
+      focusEnd(el);
     }
-    const el = blockRefs.current.get(id)
-    focusEnd(el)
-  })
+    const el = blockRefs.current.get(id);
+    focusEnd(el);
+  });
 
   const renderBlocks = useMemo(
     () =>
@@ -78,17 +79,16 @@ const Editor = () => {
   }, []);
 
   useLayoutEffect(() => {
-  if (!pendingFocusId.current) return;
+    if (!pendingFocusId.current) return;
 
-  const el = blockRefs.current.get(pendingFocusId.current);
-  if (el) {
-    focusEnd(el);
-  }
-  console.log('el: ',el)
+    const el = blockRefs.current.get(pendingFocusId.current);
+    if (el) {
+      focusEnd(el);
+    }
+    // console.log("el: ", el);
 
-  pendingFocusId.current = null;
-}, [blocks]);
-
+    pendingFocusId.current = null;
+  }, [blocks]);
 
   const handleKeyDown = (e: React.KeyboardEvent, block: AnyBlock) => {
     if (e.key === "Backspace") {
@@ -119,7 +119,10 @@ const Editor = () => {
     ) {
       e.preventDefault();
 
-      pendingFocusId.current = blockActions.insertBlockAfter(block.id, block.type);
+      pendingFocusId.current = blockActions.insertBlockAfter(
+        block.id,
+        block.type,
+      );
       return;
     }
     if (e.key === "Enter") {
@@ -129,8 +132,11 @@ const Editor = () => {
       }
       e.preventDefault();
 
-      pendingFocusId.current = blockActions.insertBlockAfter(block.id, block.type);
-      console.log(block.id , pendingFocusId.current)
+      pendingFocusId.current = blockActions.insertBlockAfter(
+        block.id,
+        block.type,
+      );
+      console.log(block.id, pendingFocusId.current);
     }
   };
 
@@ -153,108 +159,39 @@ const Editor = () => {
 
   return (
     <div className="editor">
-      <div className="editable-content">
+      {/* <div className="editable-content"> */}
         {renderBlocks.map(({ block, initialText }) => (
-          <div className="editor-block-row" key={block.id}>
+          <>
+            <BlockEditor
+              key={block.id}
+              initialText={initialText}
+              pendingFocusId={pendingFocusId}
+              block={block}
+              handleInput={handleInput}
+              handleKeydown={handleKeyDown}
+              hydratedBlocks={hydratedBlocks}
+              blockRefs={blockRefs}
+            />
             {openMenu?.blockId === block.id && (
               <BlockMenu
-              blockMenuRef={blockMenuRef}
+                blockMenuRef={blockMenuRef}
                 block={widenBlock(block)}
                 mode={openMenu.mode}
                 onClose={() => openMenuActions.setToNull()}
                 onAddBlock={(type) => {
-                  if (
-                    type !== "bullet-list" &&
-                    type !== "number-list" &&
-                    type !== "todo"
-                  ) {
-                    pendingFocusId.current = blockActions.insertBlockAfter(block.id, type);
-                  } else {
-                    const nId = blockActions.insertBlockAfter(block.id, "list-item");
-                    updateBlock.meta(nId, {
-                      style: type,
-                      depth: 0,
-                      checked: false,
-                    });
-                    pendingFocusId.current = nId;
-                  }
+                  pendingFocusId.current = blockActions.insertBlockAfter(
+                    block.id,
+                    type,
+                  );
                 }}
-                onChangeBlockType={(b) =>{
-                  pendingFocusId.current = b.id
-                }
-                  
-                }
+                onChangeBlockType={(b) => {
+                  pendingFocusId.current = b.id;
+                }}
               />
             )}
-            {/* ---------- GUTTER ---------- */}
-            <div className="editor-block-controls">
-              <button
-                className="add"
-                onClick={() => {
-                  openMenuActions.set({ blockId: block.id, mode: "add" });
-                }}
-              >
-                +
-              </button>
-              <button className="drag"
-              onClick={() => {
-                  openMenuActions.set({ blockId: block.id, mode: "more" });
-                }}
-              >⋮⋮</button>
-            </div>
-
-            {/* ---------- CONTENT ---------- */}
-            <div
-              className={`editor-block editor-${block.type}`}
-              contentEditable={false}
-              data-type={block.type}
-              data-meta-type={
-                block.type === "list-item" ? block.meta.style : ""
-              }
-              data-meta-depth={
-                block.type === "list-item" ? block.meta.depth : ""
-              }
-              data-meta-checked={
-                block.type === "list-item" ? block.meta.checked : ""
-              }
-              
-            >
-              {block.type === "list-item" && block.meta.style === "todo" && (
-                <span
-                  className="todo-checkbox"
-                  contentEditable={false}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (editable === true) {
-                      updateBlock.meta(block.id, {
-                        ...block.meta,
-                        checked: !block.meta.checked,
-                      });
-                    } else {
-                      toast.info("Set memory-item to be editable");
-                    }
-                  }}
-                />
-              )}
-
-              <span
-                className="editor-text"
-                contentEditable={editable}
-                suppressContentEditableWarning
-                ref={(el) => {
-                  if (!el) return;
-                   blockRefs.current.set(block.id, el);
-                  if (hydratedBlocks.current.has(block.id)) return;
-                  el.textContent = initialText;
-                  hydratedBlocks.current.add(block.id);
-                }}
-                onInput={(e) => handleInput(e, block)}
-                onKeyDown={(e) => handleKeyDown(e, widenBlock(block))}
-              />
-            </div>
-          </div>
+          </>
         ))}
-      </div>
+      {/* </div> */}
     </div>
   );
 };
