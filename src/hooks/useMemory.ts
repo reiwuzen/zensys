@@ -16,7 +16,7 @@ export const useMemory = () => {
     createMemoryItem,
     addNewNodeToExistingMemoryItem,
     deleteMemoryItem,
-    loadAllMemoryItems,
+    // loadAllMemoryItems,
   } = MemoryItemService();
   const { loadMemories, reloadMemory } = MemoryService();
   const memoryData = useMemo(
@@ -68,6 +68,6 @@ export const useMemory = () => {
   return {
     memoryData,
     memoryActions,
-    loadAllMemoryItems,
+    // loadAllMemoryItems,
   };
 };

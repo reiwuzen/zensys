@@ -56,7 +56,7 @@ export default [
 
   // 5️⃣ Global language options & ignores
   {
-    files: ["**/*.{js,jsx,ts,tsx}"],
+    files: ["src/**/*.{js,jsx,ts,tsx}"],
     languageOptions: {
       globals: globals.browser,
     },

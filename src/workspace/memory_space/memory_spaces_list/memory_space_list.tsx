@@ -42,22 +42,22 @@ console.log(memoryData.memories)
   if (error) {
     return <div className="memory-space-list error">{error}</div>;
   }
-  if (memoryData.memories.length === 0) return
+  // if (memoryData.memories.length === 0) return
   return (
     <div className="memory-space-list">
       <h1>Memory Space</h1>
 
       <div className="memory-space-list-items">
-        {memoryData.memories.map(({memory_item:item , active_node: active_node,nodes }) => (
+        {memoryData.memories.map(({memory_item:item , head_node: head_node,nodes }) => (
           <div
             key={item.memory_id}
             className="memory-space-list-item"
             onClick={()=>{
-              memoryActions.memory.set({memory_item:item,active_node:active_node,nodes})
+              memoryActions.memory.set({memory_item:item,head_node:head_node,nodes})
               setActiveTabTypeAndView('memory_space','detail')
             }}
           >
-            <h2>{active_node?.title}</h2>
+            <h2>{item.title}</h2>
           </div>
         ))}
       </div>

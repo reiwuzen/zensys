@@ -5,15 +5,15 @@ import { Tag } from "@/types/tag";
 import { invoke } from "@tauri-apps/api/core";
 
 export const MemoryNodeService = () => {
-  const addTagsToNode = async (
+  const addTagsToMemoryItem = async (
     memoryId: string,
     nodeId: string,
     newTags: Tag[],
   ) => {
+    
     try {
-      await invoke("add_tags_to_node", {
+      await invoke("upsert_tag_on_memory_item", {
         memoryId: memoryId,
-        nodeId: nodeId,
         newTags: newTags,
       });
       return true;
@@ -22,7 +22,7 @@ export const MemoryNodeService = () => {
       return false;
     } 
   };
-  const deleteTagFromNode = async () =>{
+  const deleteTagFromMemoryItem = async () =>{
     try{
       return true
     }catch(err){
@@ -31,7 +31,7 @@ export const MemoryNodeService = () => {
     }
   }
   return {
-    addTagsToNode,
-    deleteTagFromNode,
+    addTagsToMemoryItem,
+    deleteTagFromMemoryItem,
   };
 };

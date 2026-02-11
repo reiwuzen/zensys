@@ -14,17 +14,17 @@ const MemorySpaceItem = () => {
   const { memoryActions, memoryData } = useMemory();
   const { setActiveTabView } = useActiveTab();
   const { tagsData, addTagToNode } = useTags();
-  const { active_node: activeNode } = memoryData.memory.new;
+  const { head_node: headNode, memory_item } = memoryData.memory.new;
   const [showTagPicker, setShowTagPicker] = useState<boolean>(false);
   const { blocks, editable, editableActions, blockActions } = useEditorZen();
   const tagPickerRef = useRef<HTMLDivElement>(null);
 
-  const nodeTagIds = new Set(activeNode.tags.map((t) => t.id));
+  const nodeTagIds = new Set(memory_item.tags.map((t) => t.id));
 
   const availableTags = tagsData.tags.filter((tag) => !nodeTagIds.has(tag.id));
 
   useEffect(() => {
-    const b: Block[] = JSON.parse(activeNode.content_json);
+    const b: Block[] = JSON.parse(headNode.content_json);
     blockActions.set(b);
     const handleTagPicker = (e: MouseEvent) => {
       if (
@@ -42,17 +42,15 @@ const MemorySpaceItem = () => {
   const saveNode = async () => {
     await memoryActions.memoryItem.addNode(
       memoryData.memory.new.memory_item,
-      activeNode.title,
-      activeNode.memory_type,
       JSON.stringify(blocks),
     );
 
-    await memoryActions.memory.reload(activeNode.memory_id);
+    await memoryActions.memory.reload(headNode.memory_id);
     editableActions.disable();
   };
 
   const deleteAndExit = async () => {
-    const res = await memoryActions.memoryItem.delete(activeNode.memory_id);
+    const res = await memoryActions.memoryItem.delete(headNode.memory_id);
 
     if (res.ok !== true) {
       throw new Error(res.error ?? "Failed to delete memory Item");
@@ -61,7 +59,7 @@ const MemorySpaceItem = () => {
     setActiveTabView("list");
   };
 
-  // console.log(JSON.parse(activeNode.content_json))
+  // console.log(JSON.parse(headNode.content_json))
   return (
     <article className="memory-node">
       <div className="memory-node-accessory-bar">
@@ -92,7 +90,7 @@ const MemorySpaceItem = () => {
             className="memory-node-save-btn"
             onClick={async () => {
               const oldBlocks: AnyBlock[] = JSON.parse(
-                memoryData.memory.new.active_node.content_json,
+                memoryData.memory.new.head_node.content_json,
               );
               const bool = areBlocksSemanticallyEqual(
                 oldBlocks,
@@ -161,7 +159,7 @@ const MemorySpaceItem = () => {
           onClick={async (e) => {
             e.stopPropagation();
             setShowTagPicker(true);
-            // const ok = await addTagToNode(activeNode.memory_id,activeNode.node_id,)
+            // const ok = await addTagToNode(headNode.memory_id,headNode.node_id,)
           }}
         >
           Add Tag
@@ -183,15 +181,15 @@ const MemorySpaceItem = () => {
                   className="tag-picker__item"
                   onClick={() => {
                     const ok = addTagToNode(
-                      activeNode.memory_id,
-                      activeNode.node_id,
+                      headNode.memory_id,
+                      headNode.node_id,
                       t,
                     );
                     if (!ok) {
                       //toast
                     }
                     setShowTagPicker(false);
-                    memoryActions.memory.reload(activeNode.memory_id);
+                    memoryActions.memory.reload(headNode.memory_id);
                   }}
                 >
                   {t.label}
@@ -203,15 +201,15 @@ const MemorySpaceItem = () => {
       </div>
 
       <header className="memory-node__header">
-        <h1 className="memory-node__title">{activeNode.title}</h1>
+        <h1 className="memory-node__title">{memory_item.title}</h1>
 
         <time className="memory-node__timestamp">
-          {new Date(activeNode.created_at).toLocaleString()}
+          {new Date(headNode.created_at).toLocaleString()}
         </time>
       </header>
       <ul className="memory-node__tags">
-        {activeNode.tags.length > 0 ? (
-          activeNode.tags.map((t) => (
+        {memory_item.tags.length > 0 ? (
+          memory_item.tags.map((t) => (
             <li className="tag" key={t.id}>
               {t.label}
             </li>
