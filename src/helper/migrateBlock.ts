@@ -20,12 +20,12 @@ export function migrateBlock(
   }
 
   // paragraph → list-item
-  if (block.type === "paragraph" && nextType === "list-item") {
+  if (block.type === "paragraph" && nextType === "bullet") {
     return {
       ...block,
-      type: "list-item",
+      type: "bullet",
       meta: {
-        style: "bullet",
+        
         depth: 0,
       },
       content: block.content,
@@ -33,7 +33,7 @@ export function migrateBlock(
   }
 
   // list-item → paragraph
-  if (block.type === "list-item" && nextType === "paragraph") {
+  if (block.type === "bullet" && nextType === "paragraph") {
     return {
       ...block,
       type: "paragraph",

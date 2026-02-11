@@ -6,6 +6,23 @@ This project follows **Semantic Versioning**.
 
 ---
 
+## [0.6.0] - 2026-02-11
+
+### Changed
+
+- Redesigned memory schema to support [immutable node models, version model].
+- Updated internal storage structure for improved consistency and future extensibility.
+
+### Migration
+
+- Existing memory data is [ incompatible].
+
+### ⚠ Breaking
+
+- Memory schema updated. Older memory files are not compatible with this version.
+
+---
+
 ## [0.5.0] – 2026-02-08
 
 ### Added
