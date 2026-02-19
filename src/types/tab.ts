@@ -32,7 +32,7 @@ export type TabStore = {
 export type TabType = keyof TabViewMap;
 export type TabViewMap = {
   overview: "list" | "detail";
-  memory_space: "list" | "detail";
+  library: "list" | "detail";
   create: "picker" | "form";
   structure: 'add' | 'list' | 'details';
   // settings: | "general"
