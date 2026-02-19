@@ -6,5 +6,7 @@ export const DEFAULT_SETTINGS : DefaultSettings= {
     memoryView: 'timeline',
     localOnlyMode: true,
     debugsLog: false,
-    analytics: false
+    analytics: false,
+    isOpen: false,
+    view: 'general',
 }
