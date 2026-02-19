@@ -1,30 +1,30 @@
 import { useActiveTab } from "@/hooks/useActiveTab";
-import "./memory_space_item.scss";
+import "./libraryItem.scss";
 import { useTags } from "@/hooks/useTag";
 import { useEffect, useRef, useState } from "react";
 import Editor from "@/editor/editor";
 import { toast } from "sonner";
 import { useEditorZen } from "@/hooks/useEditorZen";
 import { AnyBlock, Block } from "@/types/editor";
-import { useMemory } from "@/hooks/useMemory";
+import { useLibrary } from "@/hooks/useLibrary";
 import { areBlocksSemanticallyEqual } from "@/helper/compareTwoBlocks";
 import { widenBlocks } from "@/helper/widenBlock";
 
-const MemorySpaceItem = () => {
-  const { memoryActions, memoryData } = useMemory();
+const LibraryItem = () => {
+  const { pagesStore,pageActions } = useLibrary();
   const { setActiveTabView } = useActiveTab();
   const { tagsData, addTagToNode } = useTags();
-  const { head_node: headNode, memory_item } = memoryData.memory.new;
+  const { headSnapshot, pageMeta } = pagesStore.activePage;
   const [showTagPicker, setShowTagPicker] = useState<boolean>(false);
   const { blocks, editable, editableActions, blockActions } = useEditorZen();
   const tagPickerRef = useRef<HTMLDivElement>(null);
 
-  const nodeTagIds = new Set(memory_item.tags.map((t) => t.id));
+  const nodeTagIds = new Set(pageMeta.tags.map((t) => t.id));
 
   const availableTags = tagsData.tags.filter((tag) => !nodeTagIds.has(tag.id));
 
   useEffect(() => {
-    const b: Block[] = JSON.parse(headNode.content_json);
+    const b: Block[] = JSON.parse(headSnapshot.contentJson);
     blockActions.set(b);
     const handleTagPicker = (e: MouseEvent) => {
       if (
@@ -36,21 +36,23 @@ const MemorySpaceItem = () => {
     document.addEventListener("mousedown", handleTagPicker);
     return () => {
       editableActions.disable();
-      document.removeEventListener("mousedown", handleTagPicker);}
+      document.removeEventListener("mousedown", handleTagPicker);
+    };
   }, []);
 
   const saveNode = async () => {
-    await memoryActions.memoryItem.addNode(
-      memoryData.memory.new.memory_item,
+    await pageActions.page.createNewSnapshot(
+      pagesStore.activePage.pageMeta
+      ,
       JSON.stringify(blocks),
     );
 
-    await memoryActions.memory.reload(headNode.memory_id);
+    await pageActions.activePage.reload(headSnapshot.pageId);
     editableActions.disable();
   };
 
   const deleteAndExit = async () => {
-    const res = await memoryActions.memoryItem.delete(headNode.memory_id);
+    const res = await pageActions.page.delete(headSnapshot.pageId)
 
     if (res.ok !== true) {
       throw new Error(res.error ?? "Failed to delete memory Item");
@@ -61,11 +63,11 @@ const MemorySpaceItem = () => {
 
   // console.log(JSON.parse(headNode.content_json))
   return (
-    <article className="memory-node">
-      <div className="memory-node-accessory-bar">
+    <article className="page-snapshot">
+      <div className="page-snapshot-accessory-bar">
         {!editable ? (
           <button
-            className="memory-node-edit-btn"
+            className="page-snapshot-edit-btn"
             onClick={(e) => {
               e.stopPropagation();
               // e.preventDefault();
@@ -87,10 +89,10 @@ const MemorySpaceItem = () => {
           </button>
         ) : (
           <button
-            className="memory-node-save-btn"
+            className="page-snapshot-save-btn"
             onClick={async () => {
               const oldBlocks: AnyBlock[] = JSON.parse(
-                memoryData.memory.new.head_node.content_json,
+                headSnapshot.contentJson,
               );
               const bool = areBlocksSemanticallyEqual(
                 oldBlocks,
@@ -127,7 +129,7 @@ const MemorySpaceItem = () => {
           </button>
         )}
         <button
-          className="memory-node-delete-btn"
+          className="page-snapshot-delete-btn"
           onClick={async (e) => {
             e.stopPropagation();
             toast.promise(deleteAndExit(), {
@@ -155,7 +157,7 @@ const MemorySpaceItem = () => {
           </svg>
         </button>
         <button
-          className="memory-node-add_tag-btn"
+          className="page-snapshot-add_tag-btn"
           onClick={async (e) => {
             e.stopPropagation();
             setShowTagPicker(true);
@@ -181,15 +183,15 @@ const MemorySpaceItem = () => {
                   className="tag-picker__item"
                   onClick={() => {
                     const ok = addTagToNode(
-                      headNode.memory_id,
-                      headNode.node_id,
+                      headSnapshot.pageId,
+                      headSnapshot.id,
                       t,
                     );
                     if (!ok) {
                       //toast
                     }
                     setShowTagPicker(false);
-                    memoryActions.memory.reload(headNode.memory_id);
+                    pageActions.activePage.reload(headSnapshot.pageId);
                   }}
                 >
                   {t.label}
@@ -200,16 +202,16 @@ const MemorySpaceItem = () => {
         )}
       </div>
 
-      <header className="memory-node__header">
-        <h1 className="memory-node__title">{memory_item.title}</h1>
+      <header className="page-snapshot__header">
+        <h1 className="page-snapshot__title">{pageMeta.title}</h1>
 
-        <time className="memory-node__timestamp">
-          {new Date(headNode.created_at).toLocaleString()}
+        <time className="page-snapshot__timestamp">
+          {new Date(headSnapshot.createdAt).toLocaleString()}
         </time>
       </header>
-      <ul className="memory-node__tags">
-        {memory_item.tags.length > 0 ? (
-          memory_item.tags.map((t) => (
+      <ul className="page-snapshot__tags">
+        {pageMeta.tags.length > 0 ? (
+          pageMeta.tags.map((t) => (
             <li className="tag" key={t.id}>
               {t.label}
             </li>
@@ -219,7 +221,7 @@ const MemorySpaceItem = () => {
         )}
       </ul>
       <section
-        className="memory-node__content"
+        className="page-snapshot__content"
         // onClick={()=>{}}
       >
         <Editor />
@@ -228,4 +230,4 @@ const MemorySpaceItem = () => {
   );
 };
 
-export default MemorySpaceItem;
+export default LibraryItem;
