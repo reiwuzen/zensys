@@ -1,5 +1,17 @@
 import { Tag } from "@/types/tag";
-
+type LastInteraction = {
+  entries: {
+    date_time : string
+  }[]
+  type: 'open' | 'update'
+  count: number
+} | {
+  entry: {
+    date_time: string
+  }
+  type: 'create'
+  count: 1
+}
 export type MemoryType = "Diary" | "Fact" | "Event" | "Schedule" | "Generic";
 export type MemoryItem = {
   memory_id: string;
@@ -7,9 +19,9 @@ export type MemoryItem = {
   title: string
   head_node_id: string
 
+  last_opened?: LastInteraction
   last_updated_at:string
   last_opened_at: string
-  // active_node_id: string;
   memory_type: MemoryType
   tags: Tag[]
 };
