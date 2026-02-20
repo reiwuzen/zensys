@@ -7,7 +7,7 @@ function App() {
 
   
   useEffect(() => {
-    invoke("create_memory_spaces_dir");
+    invoke("page_store_dir");
   }, []);
   return (
     <main className="container">
