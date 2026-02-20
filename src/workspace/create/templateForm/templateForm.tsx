@@ -1,20 +1,20 @@
 import { useState } from "react";
 import "./templateForm.scss";
-import { MemoryTemplate } from "@/memory/template";
-import { MemoryType } from "@/memory/schema";
+import type { PageTemplate } from "@/types/template";
 import { useActiveTab } from "@/hooks/useActiveTab";
-import { useMemory } from "@/hooks/useMemory";
+import { useLibrary } from "@/hooks/useLibrary";
+import type { PageType } from "@/types/page";
 type TemplateFormProps = {
-  selectedTemplate: MemoryTemplate;
+  selectedTemplate: PageTemplate;
 };
 
-const memoryTypes: MemoryType[] = ["Diary", "Fact", "Event", "Generic"];
+const memoryTypes: PageType[] = ["diary", "fact", "event", "generic"];
 
 const TemplateForm = ({ selectedTemplate }: TemplateFormProps) => {
-  const {memoryActions} =useMemory();
+  const { pageActions } = useLibrary();
   const { setActiveTabTypeAndView } = useActiveTab();
   const [title, setTitle] = useState(selectedTemplate.initialTitle);
-  const [type, setType] = useState(selectedTemplate.memoryType);
+  const [type, setType] = useState(selectedTemplate.pageType);
 
   const [open, setOpen] = useState<boolean>(false);
 
@@ -23,7 +23,7 @@ const TemplateForm = ({ selectedTemplate }: TemplateFormProps) => {
       <header className="templateForm-header">
         <h1>Create memory</h1>
         <p>
-          This will create a new {selectedTemplate.memoryType as string} page
+          This will create a new {selectedTemplate.pageType as string} page
         </p>
       </header>
 
@@ -85,9 +85,9 @@ const TemplateForm = ({ selectedTemplate }: TemplateFormProps) => {
             disabled={!title.trim()}
             onClick={async () => {
               try {
-                await memoryActions.memoryItem.create(title, type);
-                await memoryActions.memories.load()
-                setActiveTabTypeAndView("memory_space", "list");
+                await pageActions.page.create(title, type);
+                await pageActions.pages.load();
+                setActiveTabTypeAndView("library", "list");
               } catch (err) {
                 console.error("Failed to save memory:", err);
               }

@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./overview.scss";
-import { useMemory } from "@/hooks/useMemory";
-import { Memory } from "@/types/memory";
+import { useLibrary } from "@/hooks/useLibrary";
+import type { VersionedPage } from "@/types/page";
+import { formatToLocaleDateTime } from "@/helper/formatToLocaleDateTime";
 
 const Skeleton = ({ className = "" }: { className?: string }) => {
   return <div className={`skeleton ${className}`} />;
@@ -46,12 +47,33 @@ const OverviewSkeleton = () => {
 };
 
 const Overview = () => {
-  const { memoryActions, memoryData } = useMemory();
+  const { pagesStore,pageActions } = useLibrary();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const lastOpenedMemories: Memory[] = memoryData.memories;
-  const lastUpdatedMemories: Memory[] = memoryData.memories;
+  const lastOpenedPages: VersionedPage[] = useMemo(
+    () =>
+      [...pagesStore.pages]
+        .filter((p) => p.pageMeta.lastOpenedAt.trim() !== "")
+        .sort((a, b) =>
+          b.pageMeta.lastOpenedAt.localeCompare(
+            a.pageMeta.lastOpenedAt,
+          ),
+        ),
+    [pagesStore.pages],
+  );
+
+  const lastUpdatedPages: VersionedPage[] = useMemo(
+    () =>
+      [...pagesStore.pages]
+        .filter((p) => p.pageMeta.lastUpdatedAt.trim() !== "")
+        .sort((a, b) =>
+          b.pageMeta.lastUpdatedAt.localeCompare(
+            a.pageMeta.lastUpdatedAt,
+          ),
+        ),
+    [pagesStore.pages],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +81,7 @@ const Overview = () => {
     setLoading(true);
 
     (async () => {
-      await memoryActions.memories
+      await pageActions.pages
         .load()
         .catch((err) => {
           if (!cancelled) setError(String(err));
@@ -101,10 +123,10 @@ const Overview = () => {
         <div className="overview-block">
           <h2>Last Opened</h2>
           <div className="overview-scroll">
-            {lastOpenedMemories.map((m) => (
-              <div key={m.memory_item.memory_id} className="card">
-                <h3>{m.memory_item.title}</h3>
-                <p>{m.memory_item.last_opened_at}</p>
+            {lastOpenedPages.map((p) => (
+              <div key={p.pageMeta.id} className="card">
+                <h3>{p.pageMeta.title}</h3>
+                <p>{formatToLocaleDateTime(p.pageMeta.lastOpenedAt)}</p>
               </div>
             ))}
           </div>
@@ -113,10 +135,10 @@ const Overview = () => {
         <div className="overview-block">
           <h2>Last Updated</h2>
           <div className="overview-scroll">
-            {lastUpdatedMemories.map((m) => (
-              <div key={m.memory_item.memory_id} className="card">
-                <h3>{m.memory_item.title}</h3>
-                <p>{m.memory_item.last_updated_at}</p>
+            {lastUpdatedPages.map((p) => (
+              <div key={p.pageMeta.id} className="card">
+                <h3>{p.pageMeta.title}</h3>
+                <p>{formatToLocaleDateTime(p.pageMeta.lastUpdatedAt)}</p>
               </div>
             ))}
           </div>
