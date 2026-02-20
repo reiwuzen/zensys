@@ -48,8 +48,8 @@ const Navbar = () => {
           </li>
 
           <li
-            className={activeTab?.type === "memory_space" ? "active" : ""}
-            onClick={() => handleClick("memory_space", "list")}
+            className={activeTab?.type === "library" ? "active" : ""}
+            onClick={() => handleClick("library", "list")}
           >
             <h6>Memory Spaces</h6>
           </li>
